@@ -46,7 +46,7 @@
 
         <WrapPanel HorizontalAlignment="Left" Grid.Row="5" Grid.Column="2" Grid.ColumnSpan="4">
             <Button x:Name="encryptMessageButton" Content="Encrypt Message" Click="EncryptMessageButton_Click" MinWidth="150" MaxWidth="250"  Margin="5,0,10,0" Grid.Row="5" Grid.Column="2"
-                HorizontalAlignment="Left"></Button>
+                HorizontalAlignment="Left" IsEnabled="{Binding IsEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></Button>
             <Button x:Name="hideMessageButton" Content="Hide Message" MinWidth="150" MaxWidth="250"  Margin="0,0,200,0" Grid.Row="5" Grid.Column="2"
                 HorizontalAlignment="Left"></Button>
             <Button x:Name="saveImageButton" Content="Save Image"  MinWidth="150" MaxWidth="250"  Margin="0,0,10,0" Grid.Row="5" Grid.Column="1"

@@ -22,6 +22,7 @@ namespace BasicLib.ViewModels
             set
             {
                 SetProperty(ref _messageToHide, value);
+                RaisePropertyChanged("IsEnabled");
             }
         }
 
@@ -36,7 +37,7 @@ namespace BasicLib.ViewModels
             set
             {
                 SetProperty(ref _encryptedMessage, value);
-                SetProperty(ref _messageToHide, value);
+                RaisePropertyChanged(() => MessageToHide);
             }
         }
 
@@ -50,10 +51,23 @@ namespace BasicLib.ViewModels
 
             set
             {
-                SetProperty(ref _imageSourcePath, value);
+                SetProperty(ref _imageSourcePath, value);  
             }
         }
 
+
+        private bool _isEnabled;
+
+        public bool IsEnabled
+        {
+            get
+            { return _isEnabled=(!String.IsNullOrEmpty(MessageToHide))&&(String.IsNullOrEmpty(EncryptedMessage)); }
+
+            set
+            {
+                SetProperty(ref _isEnabled, value);
+            }
+        }
 
 
         #endregion Binding Properties

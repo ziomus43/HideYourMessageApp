@@ -33,6 +33,12 @@ namespace ApplicationStarter.Views
         #region Methods
 
         #region Loading and Saving
+
+        public void Reload()
+        {
+            encryptMessageButton.IsEnabled = encryptorViewModel.IsEnabled;
+        }
+
         private void LoadTextButton_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog ofd = new OpenFileDialog();
@@ -57,7 +63,7 @@ namespace ApplicationStarter.Views
 
                 //close the stream
                 streamReader.Dispose();
-
+                
             }
 
         }
