@@ -9,7 +9,7 @@ using System.Drawing;
 
 namespace BasicLib.ViewModels
 {
-    public class EncryptorViewModel:MvxViewModel
+    public class EncryptorViewModel : MvxViewModel
     {
 
         #region Binding Properties
@@ -65,7 +65,7 @@ namespace BasicLib.ViewModels
 
             set
             {
-                SetProperty(ref _imageSourcePath, value);  
+                SetProperty(ref _imageSourcePath, value);
             }
         }
 
@@ -75,7 +75,7 @@ namespace BasicLib.ViewModels
         public bool IsEnabled
         {
             get
-            { return _isEnabled=(!String.IsNullOrEmpty(MessageToHide))&&(String.IsNullOrEmpty(EncryptedMessage)); }
+            { return _isEnabled = (!String.IsNullOrEmpty(MessageToHide)) && (String.IsNullOrEmpty(EncryptedMessage)); }
 
             set
             {
@@ -112,11 +112,11 @@ namespace BasicLib.ViewModels
                 // Create an encryptor to perform the stream transform.
                 ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
 
-                using(MemoryStream msEncrypt=new MemoryStream())
+                using (MemoryStream msEncrypt = new MemoryStream())
                 {
-                    using(CryptoStream csEncrypt=new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
+                    using (CryptoStream csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
                     {
-                        using(StreamWriter swEncrypt=new StreamWriter(csEncrypt))
+                        using (StreamWriter swEncrypt = new StreamWriter(csEncrypt))
                         {
                             //Write all data to the stream.
                             swEncrypt.Write(messageToEncrypt);
@@ -127,14 +127,14 @@ namespace BasicLib.ViewModels
             }
             int counter = 0;
             List<byte> catched = new List<byte>();
-            foreach(byte bajt in encrypted)
+            foreach (byte b in encrypted)
             {
-                for(int i=0; i<encrypted.Length; i++)
+                for (int i = 0; i < encrypted.Length; i++)
                 {
-                    if (bajt == encrypted[i]&& Array.IndexOf(encrypted, bajt)!=i)
+                    if (b == encrypted[i] && Array.IndexOf(encrypted, b) != i)
                     {
                         counter += 1;
-                        catched.Add(bajt);
+                        catched.Add(b);
                     }
                 }
             }
@@ -188,44 +188,102 @@ namespace BasicLib.ViewModels
 
 
         //Change pixel color
-        public Bitmap ChangePixelColor(byte[] tab)
+        public Bitmap ChangePixelColor(byte[] tabOfBytes)
         {
             Bitmap bmp;
-            string fileName = "C:\\Users\\Endrju\\Desktop\\Red_Image.png";
+            string fileName = "C:\\Users\\Endrju\\Desktop\\Red_Image.jpg";
             bmp = (Bitmap)Image.FromFile(fileName);
-            bmp = ChangeColor(bmp, tab);
-            bmp.Save("C:\\Users\\Endrju\\Desktop\\Saved_Image.png");
+            bmp = ChangeColor(bmp, tabOfBytes);
+            bmp.Save("C:\\Users\\Endrju\\Desktop\\Saved_Image.jpg");
             return bmp;
         }
 
         //Get pixel color
-        public Bitmap ChangeColor(Bitmap sourceBitmap, byte[] tab)
+        public Bitmap ChangeColor(Bitmap sourceBitmap, byte[] tabOfBytes)
         {
-            Color newColor = Color.Green;
+            //TESTS VALUES
+            int iIndexer = 500;
+            int jIndexerStart = 100;
+            int jIndexerEnd = 200;
+
+            int valueDifferenceR = 4;
+            int valueDifferenceG = 4;
+            int valueDifferenceB = 4;
+
+            int xValues = sourceBitmap.Width;
+            int yValues;
+
+            int randomValueLeft = 0;
+            int randomValueRight = 1;
+
+            Color newColor;
             Color actualColor;
-            int a = newColor.A;
-            int r = newColor.R;
-            int g = newColor.G;
-            int b = newColor.B;
-            int[] tab1 = new int[] { a, r, g, b };
             Bitmap newBitmap = new Bitmap(sourceBitmap.Width, sourceBitmap.Height);
-            for(int i=0; i<sourceBitmap.Width/2; i++)
+
+            //setting coords for pixel changing
+            List<Tuple<int, int>> coordsForPixelsChange = new List<Tuple<int, int>>();
+            for (int i = 0; i < tabOfBytes.Length; i++)
             {
-                for(int j=0; j<sourceBitmap.Height/2; j++)
+                coordsForPixelsChange.Add(new Tuple<int, int>(new Random().Next(randomValueLeft, randomValueRight), new Random().Next(randomValueLeft, randomValueRight)));
+                randomValueLeft += 2;
+                randomValueRight += 2;
+            }
+
+            //Walking through Image's pixels loop
+            for (int i = 0; i < sourceBitmap.Width; i++)
+            {
+                for (int j = 0; j < sourceBitmap.Height; j++)
                 {
                     actualColor = sourceBitmap.GetPixel(i, j);
-                    if (i < tab.Length)
+
+                    if (i < coordsForPixelsChange.Count
+                        && j < coordsForPixelsChange.Count
+                        && i==j)
                     {
-                        newColor = Color.FromArgb(tab[i], newColor.G, newColor.B);
-                    }
-                    if (actualColor.A >150)
-                    {
+                        //testing RGB values of pixels changing
+                        int newR = actualColor.R - valueDifferenceR < 0 ? 0 : actualColor.R - valueDifferenceR;
+                        int newG = actualColor.G - valueDifferenceG < 0 ? 0 : actualColor.G - valueDifferenceG;
+                        int newB = actualColor.B - valueDifferenceB < 0 ? 0 : actualColor.B - valueDifferenceB;
+
+                        //tabOfBytes[i - iIndexer] = Convert.ToByte(newR);
+                        //newColor = Color.FromArgb(actualColor.A, tabOfBytes[i - iIndexer], actualColor.G, actualColor.B);
+
+
+                        newColor = Color.FromArgb(actualColor.A, Convert.ToByte(newR), Convert.ToByte(newG), Convert.ToByte(newB));
                         newBitmap.SetPixel(i, j, newColor);
                     }
                     else
                     {
                         newBitmap.SetPixel(i, j, actualColor);
                     }
+                    //for specific place
+                    /*if (i > iIndexer && i < tabOfBytes.Length + iIndexer && j > jIndexerStart && j < jIndexerEnd)
+                    {
+                        //testing RGB values of pixels changing
+                        int newR = actualColor.R - valueDifferenceR < 0 ? 0 : actualColor.R - valueDifferenceR;
+                        int newG = actualColor.G - valueDifferenceG < 0 ? 0 : actualColor.G - valueDifferenceG;
+                        int newB = actualColor.B - valueDifferenceB < 0 ? 0 : actualColor.B - valueDifferenceB;
+
+                        //tabOfBytes[i - iIndexer] = Convert.ToByte(newR);
+                        //newColor = Color.FromArgb(actualColor.A, tabOfBytes[i - iIndexer], actualColor.G, actualColor.B);
+
+
+                        newColor = Color.FromArgb(actualColor.A, Convert.ToByte(newR), Convert.ToByte(newG), Convert.ToByte(newB));
+                        newBitmap.SetPixel(i, j, newColor);
+                    }
+                    else
+                    {
+                        newBitmap.SetPixel(i, j, actualColor);
+                    }*/
+
+                    /*if (actualColor.A >150)
+                    {
+                        newBitmap.SetPixel(i, j, newColor);
+                    }
+                    else
+                    {
+                        newBitmap.SetPixel(i, j, actualColor);
+                    }*/
                 }
             }
             return newBitmap;
