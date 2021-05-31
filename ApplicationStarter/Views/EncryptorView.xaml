@@ -8,11 +8,11 @@
              xmlns:local="clr-namespace:ApplicationStarter.Views"
              mc:Ignorable="d" FontSize="15" FontFamily="Segoe UI Light"
              d:DesignHeight="850" d:DesignWidth="1500">
-    <Grid>
+    <Grid Background="Gray">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="10"/>
-            <ColumnDefinition Width="auto"/>
-            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition Width="150"/>
+            <ColumnDefinition Width="150"/>
             <ColumnDefinition Width="auto" MinWidth="150"/>
             <ColumnDefinition Width="auto"/>
             <ColumnDefinition Width="*"/>
@@ -27,11 +27,14 @@
             <RowDefinition Height="auto"/>
             <RowDefinition Height="10"/>
         </Grid.RowDefinitions>
+
+        <Button Grid.Row="1" Grid.Column="1" Background="Azure" MinHeight="50">
+            <TextBlock Text="ENCODER" FontWeight="Bold" FontSize="30"></TextBlock>
+        </Button>
+        <Button Grid.Row="1" Grid.Column="2" mvx:Bi.nd="Command SwitchViewToDecoderCommand" Background="Azure" MinHeight="50">
+            <TextBlock Text="DECODER" FontWeight="Bold" FontSize="30"></TextBlock>
+        </Button>
         
-        <TextBlock Text="ENCODER" Grid.Row="1" Grid.Column="1" Margin="10" FontWeight="Bold" FontSize="30"></TextBlock>
-
-        <TextBlock Text="DECODER" Grid.Row="1" Grid.Column="2" Margin="10" FontWeight="Bold" FontSize="30"></TextBlock>
-
         <TextBlock Text="Image to hide message within" Grid.Row="2" Grid.Column="2" Margin="10" FontSize="30"></TextBlock>
 
         <TextBlock Text="Output image with hidden message" Grid.Row="2" Grid.Column="4" Margin="10" FontSize="30"></TextBlock>
@@ -45,19 +48,19 @@
         
 
         <WrapPanel HorizontalAlignment="Left" Grid.Row="5" Grid.Column="2" Grid.ColumnSpan="4">
-            <Button x:Name="encryptMessageButton" Content="Encrypt Message" Click="EncryptMessageButton_Click" MinWidth="150" MaxWidth="250"  Margin="5,0,10,0" Grid.Row="5" Grid.Column="2"
+            <Button mvx:Bi.nd="Command EncryptMessageCommand" Content="Encrypt Message" MinWidth="150" MaxWidth="250"  Margin="5,0,10,0" Grid.Row="5" Grid.Column="2"
                 HorizontalAlignment="Left" IsEnabled="{Binding IsEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></Button>
-            <Button x:Name="hideMessageButton" Content="Hide Message" Click="HideMessageButton_Click" MinWidth="150" MaxWidth="250"  Margin="0,0,200,0" Grid.Row="5" Grid.Column="2"
+            <Button mvx:Bi.nd="Command HideMessageCommand" Content="Hide Message" MinWidth="150" MaxWidth="250"  Margin="0,0,200,0" Grid.Row="5" Grid.Column="2"
                 HorizontalAlignment="Left"></Button>
             <Button x:Name="load" Content="Load" Click="Load_Click" MinWidth="150" MaxWidth="250"  Margin="0,0,200,0" Grid.Row="5" Grid.Column="2"
                 HorizontalAlignment="Left"></Button>
-            <Button x:Name="saveImageButton" Content="Save Image"  MinWidth="150" MaxWidth="250"  Margin="0,0,10,0" Grid.Row="5" Grid.Column="2"
+            <Button x:Name="saveImageButton" Content="Save Image"  Click="SaveImageButton_Click" MinWidth="150" MaxWidth="250"  Margin="0,0,10,0" Grid.Row="5" Grid.Column="2"
                 HorizontalAlignment="Right"></Button>
             <Button x:Name="loadImageButton" Content="Load Image" Click="LoadImageButton_Click"  MinWidth="150" MaxWidth="250"  Margin="0,0,10,0" Grid.Row="5" Grid.Column="2"
                 HorizontalAlignment="Right"></Button>
-            <Button x:Name="saveTextButton" Content="Save Message"  Click="SaveTextButton_Click" MinWidth="150" MaxWidth="250"  Margin="0,0,10,0" Grid.Row="5" Grid.Column="2"
+            <Button mvx:Bi.nd="Command SaveMessageCommand" Content="Save Message" MinWidth="150" MaxWidth="250"  Margin="0,0,10,0" Grid.Row="5" Grid.Column="2"
                 HorizontalAlignment="Right"></Button>
-            <Button x:Name="loadTextButton" Content="Load Message" Click="LoadTextButton_Click" MinWidth="150" MaxWidth="250"  Margin="0,0,15,0" Grid.Row="5" Grid.Column="2"
+            <Button mvx:Bi.nd="Command LoadMessageCommand"  Content="Load Message" MinWidth="150" MaxWidth="250"  Margin="0,0,15,0" Grid.Row="5" Grid.Column="2"
                 HorizontalAlignment="Right"></Button>
         </WrapPanel>
         

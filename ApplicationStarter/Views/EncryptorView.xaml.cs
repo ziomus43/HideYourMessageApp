@@ -12,9 +12,10 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Microsoft.Win32;
 using MvvmCross.Platforms.Wpf.Views;
-using BasicLib.ViewModels;
+using BasicLibrary.ViewModels;
 using System.IO;
 using System.Security.Cryptography;
+using MvvmCross.Navigation;
 
 namespace ApplicationStarter.Views
 {
@@ -23,50 +24,21 @@ namespace ApplicationStarter.Views
     /// </summary>
     public partial class EncryptorView : MvxWpfView
     {
+
+        private IMvxNavigationService _mvxNavigationService;
+
         public EncryptorView()
         {
             InitializeComponent();
+            encryptorViewModel = new EncryptorViewModel(_mvxNavigationService);
         }
 
-        readonly EncryptorViewModel encryptorViewModel = new EncryptorViewModel();
+        EncryptorViewModel encryptorViewModel;
 
         #region Methods
 
         #region Loading and Saving
 
-        public void Reload()
-        {
-            encryptMessageButton.IsEnabled = encryptorViewModel.IsEnabled;
-        }
-
-        private void LoadTextButton_Click(object sender, RoutedEventArgs e)
-        {
-            OpenFileDialog ofd = new OpenFileDialog();
-            ofd.Title = "Choose .txt file";
-            ofd.FileName = "";
-            ofd.DefaultExt = ".txt";
-            ofd.Filter = "Text File (.txt)|*.txt";
-
-            // Display OpenFileDialog by calling ShowDialog method 
-            Nullable<bool> result = ofd.ShowDialog();
-
-
-            // Get the selected file name and display in a TextBox 
-            if (result == true)
-            {
-                // Open document 
-                StreamReader streamReader = new StreamReader(File.OpenRead(ofd.FileName));
-                
-                //read txt file
-                //encryptorViewModel.MessageToHide = streamReader.ReadToEnd();
-                messageToHide.Text = streamReader.ReadToEnd();
-
-                //close the stream
-                streamReader.Dispose();
-                
-            }
-
-        }
 
         private void LoadImageButton_Click(object sender, RoutedEventArgs e)
         {
@@ -78,34 +50,14 @@ namespace ApplicationStarter.Views
 
             // Display OpenFileDialog by calling ShowDialog method 
             Nullable<bool> result = ofd.ShowDialog();
+           
 
             if (result == true)
             {
                 //getting image's link for source
                 imageToHideMessageInside.Source = new BitmapImage(new Uri(ofd.FileName));
-
             }
         }
-
-
-        private void SaveTextButton_Click(object sender, RoutedEventArgs e)
-        {
-            SaveFileDialog sfd = new SaveFileDialog();
-            sfd.Title = "Save your text message to txt file";
-            sfd.FileName = "";
-            sfd.DefaultExt = ".txt";
-            sfd.Filter = "Text File (.txt)|*.txt";
-
-            // Display OpenFileDialog by calling ShowDialog method 
-            Nullable<bool> result = sfd.ShowDialog();
-
-
-            if (result == true && !String.IsNullOrEmpty(messageToHide.Text))
-            {
-                File.WriteAllText(sfd.FileName, messageToHide.Text);
-            }
-        }
-
 
 
         #endregion Loading and Saving
@@ -124,7 +76,7 @@ namespace ApplicationStarter.Views
 
             
             messageToHide.Text = encryptedMessageToShow;
-            encryptorViewModel.ChangePixelColor(encryptedMessage);
+            //encryptorViewModel.ChangePixelColor(encryptedMessage);
 
         }
         #endregion Methods
@@ -139,6 +91,11 @@ namespace ApplicationStarter.Views
         {
             AesCryptoServiceProvider aes = new AesCryptoServiceProvider();
             //messageToHide.Text = encryptorViewModel.DecryptMessageToString(messageToHide.Text, aes.Key, aes.IV);
+        }
+
+        private void SaveImageButton_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

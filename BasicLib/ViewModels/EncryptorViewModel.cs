@@ -5,12 +5,44 @@ using System.Security.Cryptography;
 using System.Text;
 using MvvmCross.ViewModels;
 using System.Drawing;
-
+using MvvmCross.Commands;
+using MvvmCross.Navigation;
+using System.Threading.Tasks;
 
 namespace BasicLib.ViewModels
 {
     public class EncryptorViewModel : MvxViewModel
     {
+        #region Interfaces
+
+        private readonly IMvxNavigationService _navigationService;
+        public IMvxCommand SwitchViewToDecoderCommand { get; set; }
+        public IMvxCommand EncryptMessageCommand { get; set; }
+        public IMvxCommand HideMessageCommand { get; set; }
+        public IMvxCommand LoadMessageCommand { get; set; }
+        public IMvxCommand SaveMessageCommand { get; set; }
+
+        #endregion Interfaces
+
+
+        #region ctor
+        public EncryptorViewModel(IMvxNavigationService mvxNavigationService)
+        {
+            _navigationService = mvxNavigationService;
+
+            SwitchViewToDecoderCommand = new MvxCommand(SwitchViewToDecoder);
+            EncryptMessageCommand = new MvxCommand(EncryptMessage);
+            HideMessageCommand = new MvxCommand(HideMessage);
+            LoadMessageCommand = new MvxCommand(LoadMessage);
+            SaveMessageCommand = new MvxCommand(SaveMessage);
+        }
+        #endregion ctor
+
+        public override async Task Initialize()
+        {
+            await base.Initialize();
+        }
+
 
         #region Binding Properties
         private string _messageToHide;
@@ -225,8 +257,8 @@ namespace BasicLib.ViewModels
             for (int i = 0; i < tabOfBytes.Length; i++)
             {
                 coordsForPixelsChange.Add(new Tuple<int, int>(new Random().Next(randomValueLeft, randomValueRight), new Random().Next(randomValueLeft, randomValueRight)));
-                randomValueLeft += 2;
-                randomValueRight += 2;
+                randomValueLeft += 4;
+                randomValueRight += 4;
             }
 
             //Walking through Image's pixels loop
@@ -240,13 +272,14 @@ namespace BasicLib.ViewModels
                         && j < coordsForPixelsChange.Count
                         && i==j)
                     {
-                        //testing RGB values of pixels changing
+                        //testing RGB values of pixels changing for specific difference
                         int newR = actualColor.R - valueDifferenceR < 0 ? 0 : actualColor.R - valueDifferenceR;
                         int newG = actualColor.G - valueDifferenceG < 0 ? 0 : actualColor.G - valueDifferenceG;
                         int newB = actualColor.B - valueDifferenceB < 0 ? 0 : actualColor.B - valueDifferenceB;
 
+
                         //tabOfBytes[i - iIndexer] = Convert.ToByte(newR);
-                        //newColor = Color.FromArgb(actualColor.A, tabOfBytes[i - iIndexer], actualColor.G, actualColor.B);
+                        newColor = Color.FromArgb(actualColor.A, tabOfBytes[i - iIndexer], actualColor.G, actualColor.B);
 
 
                         newColor = Color.FromArgb(actualColor.A, Convert.ToByte(newR), Convert.ToByte(newG), Convert.ToByte(newB));
@@ -289,5 +322,64 @@ namespace BasicLib.ViewModels
             return newBitmap;
         }
         #endregion Methods
+
+        #region Commands
+
+        public void SwitchViewToDecoder()
+        {
+            _navigationService.Navigate<DecryptorViewModel>();
+        }
+
+        public void EncryptMessage()
+        {
+            string encryptedMessageToShow = null;
+            byte[] encryptedMessage = null;
+            AesCryptoServiceProvider aes = new AesCryptoServiceProvider();
+
+            if (!String.IsNullOrEmpty(MessageToHide))
+            {
+                encryptedMessage = EncryptMessageToBytes(MessageToHide, aes.Key, aes.IV);
+                encryptedMessageToShow = Convert.ToBase64String(encryptedMessage);
+            }
+
+
+            MessageToHide = encryptedMessageToShow;
+            ChangePixelColor(encryptedMessage);
+        }
+
+        public void HideMessage()
+        {
+            //encryptorViewModel.ChangePixelColor();
+
+        }
+
+        public void LoadMessage()
+        {
+            AesCryptoServiceProvider aes = new AesCryptoServiceProvider();
+            //messageToHide = encryptorViewModel.DecryptMessageToString(messageToHide.Text, aes.Key, aes.IV);
+
+        }
+
+        public void SaveMessage()
+        {
+            SaveFileDialog sfd = new SaveFileDialog();
+            sfd.Title = "Save your text message to txt file";
+            sfd.FileName = "";
+            sfd.DefaultExt = ".txt";
+            sfd.Filter = "Text File (.txt)|*.txt";
+            
+            // Display OpenFileDialog by calling ShowDialog method 
+            Nullable<bool> result = sfd.ShowDialog();
+
+
+            if (result == true && !String.IsNullOrEmpty(MessageToHide))
+            {
+                File.WriteAllText(sfd.FileName, MessageToHide);
+            }
+        }
+
+        #endregion Commands
+
     }
+
 }

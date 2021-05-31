@@ -1,0 +1,66 @@
+﻿<views:MvxWpfView xmlns:views="clr-namespace:MvvmCross.Platforms.Wpf.Views;assembly=MvvmCross.Platforms.Wpf"
+                  xmlns:mvx="clr-namespace:MvvmCross.Platforms.Wpf.Binding;assembly=MvvmCross.Platforms.Wpf"
+      x:Class="ApplicationStarter.Views.DecryptorView"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:ApplicationStarter.Views"
+      mc:Ignorable="d" FontSize="15" FontFamily="Segoe UI Light"
+      d:DesignHeight="850" d:DesignWidth="1500">
+
+
+    <Grid Background="Gray">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="10"/>
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition Width="auto" MinWidth="100"/>
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="10"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="10"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="10"/>
+        </Grid.RowDefinitions>
+
+        <Button Grid.Row="1" Grid.Column="1" mvx:Bi.nd="Command SwitchViewToEncoderCommand" Background="Azure" MinHeight="50"  Width="150">
+            <TextBlock Text="ENCODER" FontWeight="Bold" FontSize="30"></TextBlock>
+        </Button>
+        <Button Grid.Row="1" Grid.Column="2" Background="Azure" MinHeight="50" Width="150" HorizontalAlignment="Left">
+            <TextBlock Text="DECODER" FontWeight="Bold" FontSize="30"></TextBlock>
+        </Button>
+
+        <Image x:Name="originalImage" Grid.Row="3" Grid.Column="2" Height="400" Width="500" Source="{Binding OriginalImageSourcePath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></Image>
+        <Image x:Name="imageWithHiddenMessage" Grid.Row="3" Grid.Column="4" Height="400" Width="500" Source="{Binding ImageWithHiddenMessageSourcePath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></Image>
+        <TextBox x:Name="hiddenMessage" Text="{Binding HiddenMessage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" Margin="5" Grid.Row="4" Grid.Column="2" MinHeight="150" Grid.ColumnSpan="3"></TextBox>
+
+
+        <TextBox Text="{Binding OriginalImageSourcePath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Row="4" Grid.Column="2" Height="40" Width="50"/>
+        <TextBlock Text="{Binding OriginalImageSourcePath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Row="4" Grid.Column="3" Height="40" Width="50"/>
+        
+        <WrapPanel HorizontalAlignment="Left" Grid.Row="5" Grid.Column="2" Grid.ColumnSpan="4">
+            <Button mvx:Bi.nd="Command DecryptMessageToStringCommand" Content="Decrypt Message" MinWidth="150" MaxWidth="250"  Margin="5,0,10,0" Grid.Row="5" Grid.Column="2"
+                HorizontalAlignment="Left" IsEnabled="{Binding IsEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></Button>
+            <Button x:Name="load" Content="Load" MinWidth="150" MaxWidth="250"  Margin="0,0,200,0" Grid.Row="5" Grid.Column="2"
+                HorizontalAlignment="Left"></Button>
+            <Button x:Name="saveImageButton" Content="Save Image" MinWidth="150" MaxWidth="250"  Margin="0,0,10,0" Grid.Row="5" Grid.Column="2"
+                HorizontalAlignment="Right"></Button>
+            <Button mvx:Bi.nd="Command LoadOriginalImageCommand" Content="Load Original Image" MinWidth="150" MaxWidth="250"  Margin="0,0,10,0" Grid.Row="5" Grid.Column="2"
+                HorizontalAlignment="Right"></Button>
+            <Button mvx:Bi.nd="Command LoadImageWithMessageCommand" Content="Load Image With Message" MinWidth="150" MaxWidth="250"  Margin="0,0,10,0" Grid.Row="5" Grid.Column="2"
+                HorizontalAlignment="Right"></Button>
+            <Button x:Name="saveMessageButton" Content="Save Message" MinWidth="150" MaxWidth="250"  Margin="0,0,10,0" Grid.Row="5" Grid.Column="2"
+                HorizontalAlignment="Right"></Button>
+            <Button x:Name="loadMessageButton"  Content="Load Message" MinWidth="150" MaxWidth="250"  Margin="0,0,15,0" Grid.Row="5" Grid.Column="2"
+                HorizontalAlignment="Right"></Button>
+        </WrapPanel>
+    </Grid>
+      
+</views:MvxWpfView>

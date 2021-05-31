@@ -19,7 +19,7 @@ namespace ApplicationStarter
     {
         protected override void RegisterSetup()
         {
-            this.RegisterSetupType<MvxWpfSetup<BasicLib.App>>();
+            this.RegisterSetupType<MvxWpfSetup<BasicLibrary.App>>();
         }
     }
 }
