@@ -41,10 +41,6 @@
         <Image x:Name="imageWithHiddenMessage" Grid.Row="3" Grid.Column="4" Height="400" Width="500" Source="{Binding ImageWithHiddenMessageSourcePath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></Image>
         <TextBox x:Name="hiddenMessage" Text="{Binding HiddenMessage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" Margin="5" Grid.Row="4" Grid.Column="2" MinHeight="150" Grid.ColumnSpan="3"></TextBox>
 
-
-        <TextBox Text="{Binding OriginalImageSourcePath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Row="4" Grid.Column="2" Height="40" Width="50"/>
-        <TextBlock Text="{Binding OriginalImageSourcePath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Row="4" Grid.Column="3" Height="40" Width="50"/>
-        
         <WrapPanel HorizontalAlignment="Left" Grid.Row="5" Grid.Column="2" Grid.ColumnSpan="4">
             <Button mvx:Bi.nd="Command DecryptMessageToStringCommand" Content="Decrypt Message" MinWidth="150" MaxWidth="250"  Margin="5,0,10,0" Grid.Row="5" Grid.Column="2"
                 HorizontalAlignment="Left" IsEnabled="{Binding IsEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></Button>

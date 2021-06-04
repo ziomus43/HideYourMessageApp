@@ -146,6 +146,7 @@ namespace BasicLibrary.ViewModels
             List<byte> bytesDifferenceMessage = new List<byte>();
             List<byte> bytesDifferenceKey = new List<byte>();
             List<byte> bytesDifferenceIV = new List<byte>();
+
             if (originalImg.Height == imgWithMessage.Height
                 && originalImg.Width == imgWithMessage.Width)
             {
@@ -153,22 +154,22 @@ namespace BasicLibrary.ViewModels
                 {
                     for (int j = 0; j < originalImg.Height; j++)
                     {
-                        if (originalImg.GetPixel(i, j).R != imgWithMessage.GetPixel(i, j).R && i != 400 && j != 300)
+                        if (originalImg.GetPixel(i, j).R != imgWithMessage.GetPixel(i, j).R && i != 550 && j != 310)
                         {
                             //bytesDifferenceMessage.Add(Convert.ToByte(Math.Abs(originalImg.GetPixel(i, j).R - imgWithMessage.GetPixel(i, j).R)));
                             bytesDifferenceMessage.Add(Convert.ToByte(imgWithMessage.GetPixel(i, j).R));
 
                         }
-                        else if (originalImg.GetPixel(i, j).R != imgWithMessage.GetPixel(i, j).R && i == 400 && j < 300)
+                        else if (originalImg.GetPixel(i, j).R != imgWithMessage.GetPixel(i, j).R && i == 550 && j < 310)
                         {
                             //bytesDifferenceKey.Add(Convert.ToByte(Math.Abs(originalImg.GetPixel(i, j).R - imgWithMessage.GetPixel(i, j).R)));
-                            bytesDifferenceKey.Add(Convert.ToByte(imgWithMessage.GetPixel(i, j).R));
+                            bytesDifferenceIV.Add(Convert.ToByte(imgWithMessage.GetPixel(i, j).R));
 
                         }
-                        else if (originalImg.GetPixel(i, j).R != imgWithMessage.GetPixel(i, j).R && j == 300)
+                        else if (originalImg.GetPixel(i, j).R != imgWithMessage.GetPixel(i, j).R && j == 310)
                         {
                             //bytesDifferenceIV.Add(Convert.ToByte(Math.Abs(originalImg.GetPixel(i, j).R - imgWithMessage.GetPixel(i, j).R)));
-                            bytesDifferenceIV.Add(Convert.ToByte(imgWithMessage.GetPixel(i, j).R));
+                            bytesDifferenceKey.Add(Convert.ToByte(imgWithMessage.GetPixel(i, j).R));
 
                         }
                     }

@@ -243,30 +243,45 @@ namespace BasicLibrary.ViewModels
             int jIndexerStart = 100;
             int jIndexerEnd = 200;
 
-            int valueDifferenceR = 4;
+            int valueDifferenceR = 30;
             int valueDifferenceG = 4;
             int valueDifferenceB = 4;
 
-            int xValues = sourceBitmap.Width;
-            int yValues;
-
-            int randomValueLeft = 0;
-            int randomValueRight = 1;
+            int coordsForPixelsChangeIndexer = 0;
 
             int keyIndexer = 0;
             int ivIndexer = 0;
 
+            //splitting img height for 2 parts
+            int firstPartTopBorder = 0;
+            int firstPartBottomBorder= sourceBitmap.Height/2-50;
+
+            int secondPartTopBorder= sourceBitmap.Height / 2 - 48;
+            int secondPartBottomBorder= sourceBitmap.Height-48;
+
+            int separatorsCount = /*sourceBitmap.Width> tabOfBytes.Length+50?*/(sourceBitmap.Width - 50) / tabOfBytes.Length;
+            int leftLimitValue = 0;
+            int rightLimitValue = separatorsCount;
+
+            //to set 2 pixels for same i value
+            int even = 0;
             Color newColor;
             Color actualColor;
             Bitmap newBitmap = new Bitmap(sourceBitmap.Width, sourceBitmap.Height);
 
+
+
             //setting coords for pixel changing
             List<Tuple<int, int>> coordsForPixelsChange = new List<Tuple<int, int>>();
-            for (int i = 0; i < tabOfBytes.Length; i++)
+            for (int i = 0; i < tabOfBytes.Length/2; i++)
             {
-                coordsForPixelsChange.Add(new Tuple<int, int>(new Random().Next(randomValueLeft, randomValueRight), new Random().Next(randomValueLeft, randomValueRight)));
-                randomValueLeft += 4;
-                randomValueRight += 4;
+
+                coordsForPixelsChange.Add(new Tuple<int, int>(new Random().Next(leftLimitValue, rightLimitValue), new Random().Next(firstPartTopBorder, firstPartBottomBorder)));
+                coordsForPixelsChange.Add(new Tuple<int, int>(coordsForPixelsChange[even].Item1, new Random().Next(secondPartTopBorder, secondPartBottomBorder)));
+
+                leftLimitValue += separatorsCount + 1;
+                rightLimitValue += separatorsCount + 1;
+                even += 2;
             }
 
             //Walking through Image's pixels loop
@@ -276,72 +291,70 @@ namespace BasicLibrary.ViewModels
                 {
                     actualColor = sourceBitmap.GetPixel(i, j);
 
-                    if (i < coordsForPixelsChange.Count
-                        && j < coordsForPixelsChange.Count
-                        && i == j)
+                    if (coordsForPixelsChangeIndexer < coordsForPixelsChange.Count
+                        && i == coordsForPixelsChange[coordsForPixelsChangeIndexer].Item1
+                        && j == coordsForPixelsChange[coordsForPixelsChangeIndexer].Item2)
                     {
+
                         //testing RGB values of pixels changing for specific difference
                         int newR = actualColor.R - valueDifferenceR < 0 ? 0 : actualColor.R - valueDifferenceR;
                         int newG = actualColor.G - valueDifferenceG < 0 ? 0 : actualColor.G - valueDifferenceG;
                         int newB = actualColor.B - valueDifferenceB < 0 ? 0 : actualColor.B - valueDifferenceB;
 
+                        if(tabOfBytes[coordsForPixelsChangeIndexer] - actualColor.R > 25)
+                        {
+                            //reducing rgb values difference between images pixels
+                            if (actualColor.R < tabOfBytes[coordsForPixelsChangeIndexer])
+                            {
+                                int bytesDiff = tabOfBytes[coordsForPixelsChangeIndexer] - actualColor.R;
+                                int mod = bytesDiff % 10;
+                                int x = bytesDiff / 10;
+                                int xMultipliedBy10 = x * 10;
+                                newR = actualColor.R + x;
+                                newG = actualColor.G + mod < 256 ? actualColor.G + mod : actualColor.G - mod;
+                            }
+                        }
+                        if(actualColor.R- tabOfBytes[coordsForPixelsChangeIndexer] > 25)
+                        {
+                            if (tabOfBytes[coordsForPixelsChangeIndexer] < actualColor.R)
+                            {
+                                int bytesDiff = actualColor.R - tabOfBytes[coordsForPixelsChangeIndexer]-1;
+                                int mod = bytesDiff % 10;
+                                int x = bytesDiff / 10;
+                                newR = actualColor.R - 1;
+                                newG = actualColor.G + x < 256 ? actualColor.G + x : actualColor.G - x;
+                                newB = actualColor.B + mod < 256 ? actualColor.B + mod: actualColor.B - mod;
+                            }
+                        }
 
-                        newR = i < tabOfBytes.Length ? tabOfBytes[i] : newR;
-                        
-                        //tabOfBytes[i - iIndexer] = Convert.ToByte(newR);
-                        //newColor = Color.FromArgb(actualColor.A, tabOfBytes[i - iIndexer], actualColor.G, actualColor.B);
 
-
+                        //newR =tabOfBytes[coordsForPixelsChangeIndexer];
                         newColor = Color.FromArgb(actualColor.A, Convert.ToByte(newR), Convert.ToByte(newG), Convert.ToByte(newB));
                         newBitmap.SetPixel(i, j, newColor);
 
-                    }else if (i == 400 && j % 3 == 0 && keyIndexer<key.Length)
-                    {
-                        newColor = Color.FromArgb(actualColor.A, key[keyIndexer], actualColor.G, actualColor.B);
-                        newBitmap.SetPixel(i, j, newColor);
-                        keyIndexer++;
-
-                    }else if (j==300 && i>50 && i<500 && i%4==0 && ivIndexer<iv.Length)
+                        coordsForPixelsChangeIndexer++;
+                    }
+                    else if (i == 550 && j % 8 == 0 && ivIndexer < iv.Length)
                     {
                         newColor = Color.FromArgb(actualColor.A, iv[ivIndexer], actualColor.G, actualColor.B);
                         newBitmap.SetPixel(i, j, newColor);
                         ivIndexer++;
 
                     }
-                    else
+                    else if (j == 310 && i > 50 && i < 500 && i % 10 == 0 && keyIndexer < key.Length)
                     {
-                        newBitmap.SetPixel(i, j, actualColor);
-                    }
-                    //for specific place
-                    /*if (i > iIndexer && i < tabOfBytes.Length + iIndexer && j > jIndexerStart && j < jIndexerEnd)
-                    {
-                        //testing RGB values of pixels changing
-                        int newR = actualColor.R - valueDifferenceR < 0 ? 0 : actualColor.R - valueDifferenceR;
-                        int newG = actualColor.G - valueDifferenceG < 0 ? 0 : actualColor.G - valueDifferenceG;
-                        int newB = actualColor.B - valueDifferenceB < 0 ? 0 : actualColor.B - valueDifferenceB;
-
-                        //tabOfBytes[i - iIndexer] = Convert.ToByte(newR);
-                        //newColor = Color.FromArgb(actualColor.A, tabOfBytes[i - iIndexer], actualColor.G, actualColor.B);
-
-
-                        newColor = Color.FromArgb(actualColor.A, Convert.ToByte(newR), Convert.ToByte(newG), Convert.ToByte(newB));
+                        newColor = Color.FromArgb(actualColor.A, key[keyIndexer], actualColor.G, actualColor.B);
                         newBitmap.SetPixel(i, j, newColor);
-                    }
-                    else
-                    {
-                        newBitmap.SetPixel(i, j, actualColor);
-                    }*/
+                        keyIndexer++;
 
-                    /*if (actualColor.A >150)
-                    {
-                        newBitmap.SetPixel(i, j, newColor);
                     }
                     else
                     {
                         newBitmap.SetPixel(i, j, actualColor);
-                    }*/
+                    }
+                    
                 }
-                
+
             }
             return newBitmap;
         }
@@ -414,8 +427,9 @@ namespace BasicLibrary.ViewModels
                 //close the stream
                 streamReader.Dispose();
             }
-            #endregion Commands
 
         }
+        #endregion Commands
+
     }
 }
