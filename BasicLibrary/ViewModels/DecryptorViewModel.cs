@@ -154,19 +154,51 @@ namespace BasicLibrary.ViewModels
                 {
                     for (int j = 0; j < originalImg.Height; j++)
                     {
-                        if (originalImg.GetPixel(i, j).R != imgWithMessage.GetPixel(i, j).R && i != 550 && j != 310)
+                        //check for eventually same R values of pixels of both imgs
+                        if (originalImg.GetPixel(i, j).B != imgWithMessage.GetPixel(i, j).B
+                           && originalImg.GetPixel(i, j).R == imgWithMessage.GetPixel(i, j).R
+                           && originalImg.GetPixel(i, j).G == imgWithMessage.GetPixel(i, j).G
+                           && i != imgWithMessage.Width - 25 
+                           && j != imgWithMessage.Height - 25)
                         {
-                            //bytesDifferenceMessage.Add(Convert.ToByte(Math.Abs(originalImg.GetPixel(i, j).R - imgWithMessage.GetPixel(i, j).R)));
                             bytesDifferenceMessage.Add(Convert.ToByte(imgWithMessage.GetPixel(i, j).R));
+                        }
+                        //message values
+                        if (originalImg.GetPixel(i, j).R != imgWithMessage.GetPixel(i, j).R 
+                            && i != imgWithMessage.Width-25 && j != imgWithMessage.Height - 25)
+                        {
+                            //calculate correct bytes values if original R is higher
+                            if (originalImg.GetPixel(i, j).R < imgWithMessage.GetPixel(i, j).R)
+                            {
+                                int diffR = imgWithMessage.GetPixel(i, j).R - originalImg.GetPixel(i, j).R;
+                                int diffRMultipledBy10 = diffR * 10;
+                                int r = originalImg.GetPixel(i, j).R + diffRMultipledBy10 + Math.Abs(imgWithMessage.GetPixel(i, j).G - originalImg.GetPixel(i, j).G);
+                                bytesDifferenceMessage.Add(Convert.ToByte(r));
+                            }
+                            //calculate correct bytes values if image with message R is higher
+                            if (originalImg.GetPixel(i, j).R> imgWithMessage.GetPixel(i, j).R)
+                            {
+                                int diffG = Math.Abs(imgWithMessage.GetPixel(i, j).G - originalImg.GetPixel(i, j).G);
+                                int diffB = Math.Abs(imgWithMessage.GetPixel(i, j).B - originalImg.GetPixel(i, j).B);
+                                int diffGMultipliedBy10 = diffG * 10;
+                                int r = imgWithMessage.GetPixel(i, j).R - (diffGMultipliedBy10 + diffB);
+                                bytesDifferenceMessage.Add(Convert.ToByte(r));
+                            }
 
                         }
-                        else if (originalImg.GetPixel(i, j).R != imgWithMessage.GetPixel(i, j).R && i == 550 && j < 310)
+                        //IV values
+                        else if ((originalImg.GetPixel(i, j).R != imgWithMessage.GetPixel(i, j).R
+                            || originalImg.GetPixel(i, j).B != imgWithMessage.GetPixel(i, j).B)
+                            && i == imgWithMessage.Width - 25 && j < imgWithMessage.Height - 25)
                         {
                             //bytesDifferenceKey.Add(Convert.ToByte(Math.Abs(originalImg.GetPixel(i, j).R - imgWithMessage.GetPixel(i, j).R)));
                             bytesDifferenceIV.Add(Convert.ToByte(imgWithMessage.GetPixel(i, j).R));
 
                         }
-                        else if (originalImg.GetPixel(i, j).R != imgWithMessage.GetPixel(i, j).R && j == 310)
+                        //Key values
+                        else if ((originalImg.GetPixel(i, j).R != imgWithMessage.GetPixel(i, j).R
+                            || originalImg.GetPixel(i, j).B != imgWithMessage.GetPixel(i, j).B)
+                            && j == imgWithMessage.Height - 25)
                         {
                             //bytesDifferenceIV.Add(Convert.ToByte(Math.Abs(originalImg.GetPixel(i, j).R - imgWithMessage.GetPixel(i, j).R)));
                             bytesDifferenceKey.Add(Convert.ToByte(imgWithMessage.GetPixel(i, j).R));
@@ -216,7 +248,8 @@ namespace BasicLibrary.ViewModels
 
                             // Read the decrypted bytes from the decrypting stream
                             // and place them in a string.
-                            plaintext = srDecrypt.ReadToEnd();
+                            plaintext = srDecrypt.ReadToEnd().Replace("\0", "");
+                            csDecrypt.Close();
                         }
                     }
                 }

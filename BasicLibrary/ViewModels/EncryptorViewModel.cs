@@ -301,7 +301,7 @@ namespace BasicLibrary.ViewModels
                         int newG = actualColor.G - valueDifferenceG < 0 ? 0 : actualColor.G - valueDifferenceG;
                         int newB = actualColor.B - valueDifferenceB < 0 ? 0 : actualColor.B - valueDifferenceB;
 
-                        if(tabOfBytes[coordsForPixelsChangeIndexer] - actualColor.R > 25)
+                        if(tabOfBytes[coordsForPixelsChangeIndexer] > actualColor.R)
                         {
                             //reducing rgb values difference between images pixels
                             if (actualColor.R < tabOfBytes[coordsForPixelsChangeIndexer])
@@ -314,7 +314,7 @@ namespace BasicLibrary.ViewModels
                                 newG = actualColor.G + mod < 256 ? actualColor.G + mod : actualColor.G - mod;
                             }
                         }
-                        if(actualColor.R- tabOfBytes[coordsForPixelsChangeIndexer] > 25)
+                        if(actualColor.R>tabOfBytes[coordsForPixelsChangeIndexer])
                         {
                             if (tabOfBytes[coordsForPixelsChangeIndexer] < actualColor.R)
                             {
@@ -326,7 +326,10 @@ namespace BasicLibrary.ViewModels
                                 newB = actualColor.B + mod < 256 ? actualColor.B + mod: actualColor.B - mod;
                             }
                         }
-
+                        if(actualColor.R== tabOfBytes[coordsForPixelsChangeIndexer])
+                        {
+                            newB = actualColor.B<255?actualColor.B + 1:actualColor.B-1;
+                        }
 
                         //newR =tabOfBytes[coordsForPixelsChangeIndexer];
                         newColor = Color.FromArgb(actualColor.A, Convert.ToByte(newR), Convert.ToByte(newG), Convert.ToByte(newB));
@@ -334,17 +337,29 @@ namespace BasicLibrary.ViewModels
 
                         coordsForPixelsChangeIndexer++;
                     }
-                    else if (i == 550 && j % 8 == 0 && ivIndexer < iv.Length)
+                    else if (i == sourceBitmap.Width-25 && j % 8 == 0 && ivIndexer < iv.Length)
                     {
                         newColor = Color.FromArgb(actualColor.A, iv[ivIndexer], actualColor.G, actualColor.B);
                         newBitmap.SetPixel(i, j, newColor);
+
+                        if (actualColor.R == iv[ivIndexer])
+                        {
+                            newColor = Color.FromArgb(actualColor.A, iv[ivIndexer], actualColor.G, actualColor.B<255? actualColor.B + 1: actualColor.B - 1);
+                            newBitmap.SetPixel(i, j, newColor);
+                        }
                         ivIndexer++;
 
                     }
-                    else if (j == 310 && i > 50 && i < 500 && i % 10 == 0 && keyIndexer < key.Length)
+                    else if (j == sourceBitmap.Height-25 && i > 50 && i < 500 && i % 10 == 0 && keyIndexer < key.Length)
                     {
                         newColor = Color.FromArgb(actualColor.A, key[keyIndexer], actualColor.G, actualColor.B);
                         newBitmap.SetPixel(i, j, newColor);
+
+                        if (actualColor.R == key[keyIndexer])
+                        {
+                            newColor = Color.FromArgb(actualColor.A, key[keyIndexer], actualColor.G, actualColor.B < 255 ? actualColor.B + 1 : actualColor.B - 1);
+                            newBitmap.SetPixel(i, j, newColor);
+                        }
                         keyIndexer++;
 
                     }
