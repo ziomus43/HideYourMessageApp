@@ -8,7 +8,10 @@
              xmlns:local="clr-namespace:ApplicationStarter.Views"
              mc:Ignorable="d" FontSize="15" FontFamily="Segoe UI Light"
              d:DesignHeight="850" d:DesignWidth="1500">
+
+    
     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+        
         <Grid Background="Gray">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="15"/>
@@ -30,6 +33,7 @@
                 <RowDefinition Height="15"/>
             </Grid.RowDefinitions>
 
+            
             <Button Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Background="Azure" MinHeight="50" Padding="10" Width="200" HorizontalAlignment="Left">
                 <TextBlock Text="ENCODER" FontWeight="Bold" FontSize="40" ></TextBlock>
             </Button>
@@ -45,11 +49,16 @@
 
             <Image Grid.Row="3" Grid.Column="4" Height="350" Width="550" Source="{Binding ImageWithHiddenMessageSourcePath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></Image>
 
-            <TextBox Text="{Binding MessageToHide, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" Margin="5" Grid.Row="5" Grid.Column="2" MinHeight="150" Grid.ColumnSpan="3" MaxWidth="1100"></TextBox>
+            <TextBox Text="{Binding MessageToHide, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MaxLength="{Binding MaxCharactersForMessage}" TextWrapping="Wrap" Margin="5" Grid.Row="5" Grid.Column="2" MinHeight="150" Grid.ColumnSpan="3" MaxWidth="1100"></TextBox>
 
-            <StackPanel Orientation="Horizontal" Grid.Row="4" Grid.Column="2" Grid.ColumnSpan="3" FlowDirection="LeftToRight" Height="50">
-                <TextBlock Text="MAX CHARACTERS: " FontSize="35"></TextBlock>
-                <TextBlock Text="{Binding MaxCharactersForMessage}" FontSize="35"></TextBlock>
+            <StackPanel Orientation="Horizontal" Grid.Row="4" Grid.Column="2" Grid.ColumnSpan="2" FlowDirection="LeftToRight" Height="50">
+                <TextBlock Text="MAX CHARACTERS: " FontSize="35" TextBlock.FontWeight="Bold"></TextBlock>
+                <TextBlock Text="{Binding MaxCharactersForMessage}" FontSize="35" TextBlock.Foreground="Red" TextBlock.FontWeight="Bold"></TextBlock>
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal" Grid.Row="4" Grid.Column="4" Grid.ColumnSpan="2" FlowDirection="LeftToRight" Height="50">
+                <TextBlock Text="CHARACTERS LEFT FOR MSG: " FontSize="35" TextBlock.FontWeight="Bold"></TextBlock>
+                <TextBlock Text="{Binding NumOfCharactersLeftInMessage, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource IntToStringValueConverter}}" FontSize="35" TextBlock.Foreground="Red" TextBlock.FontWeight="Bold"></TextBlock>
             </StackPanel>
 
 
@@ -80,4 +89,6 @@
 
         </Grid>
     </ScrollViewer>
+    
+    
 </views:MvxWpfView>

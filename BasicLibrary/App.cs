@@ -12,5 +12,6 @@ namespace BasicLibrary
         {
             RegisterAppStart<EncryptorViewModel>(); 
         }
+
     }
 }

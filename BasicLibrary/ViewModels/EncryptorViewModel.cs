@@ -11,6 +11,8 @@ using System.Threading.Tasks;
 using Microsoft.Win32;
 using System.Drawing.Imaging;
 using System.Windows.Media.Imaging;
+using BasicLibrary.Converters;
+using MvvmCross.Converters;
 //using System.Windows.Media;
 
 namespace BasicLibrary.ViewModels
@@ -63,7 +65,10 @@ namespace BasicLibrary.ViewModels
             set
             {
                 SetProperty(ref _messageToHide, value);
-                if (!String.IsNullOrEmpty(MessageToHide)&& OriginalImage != null)
+                NumOfCharactersLeftInMessage = MessageToHide == null ? 400 : 400 - value.Length;
+                RaisePropertyChanged("NumOfCharactersLeftInMessage");
+
+                if (!String.IsNullOrEmpty(MessageToHide) && OriginalImage != null)
                 {
                     IsEnabled = true;
                     RaisePropertyChanged("IsEnabled");
@@ -78,6 +83,19 @@ namespace BasicLibrary.ViewModels
             }
         }
 
+        private bool _messageIsEnabled = false;
+
+        public bool MessageIsEnabled
+        {
+            get
+            { return _messageIsEnabled; }
+
+            set
+            {
+                SetProperty(ref _messageIsEnabled, value);
+                RaisePropertyChanged(() => MessageIsEnabled);
+            }
+        }
 
         private string _encryptedMessage;
 
@@ -107,17 +125,20 @@ namespace BasicLibrary.ViewModels
             }
         }
 
-        private string _numOfCharactersLeftInMessage="400";
+        private int _numOfCharactersLeftInMessage = 400;
 
-        public string NumOfCharactersLeftInMessage
+        public int NumOfCharactersLeftInMessage
         {
             get
             { return _numOfCharactersLeftInMessage; }
 
             set
             {
+                MessageIsEnabled = value < 1 ? true : false;
                 SetProperty(ref _numOfCharactersLeftInMessage, value);
                 RaisePropertyChanged(() => NumOfCharactersLeftInMessage);
+                RaisePropertyChanged("MessageIsEnabled");
+
             }
         }
 
@@ -172,7 +193,7 @@ namespace BasicLibrary.ViewModels
             set
             {
                 SetProperty(ref _originalImage, value);
-                if (OriginalImage!=null&& !String.IsNullOrEmpty(MessageToHide))
+                if (OriginalImage != null && !String.IsNullOrEmpty(MessageToHide))
                 {
                     IsEnabled = true;
                     RaisePropertyChanged("IsEnabled");
@@ -380,10 +401,10 @@ namespace BasicLibrary.ViewModels
 
             //splitting img height for 2 parts
             int firstPartTopBorder = 0;
-            int firstPartBottomBorder= sourceBitmap.Height/2-50;
+            int firstPartBottomBorder = sourceBitmap.Height / 2 - 50;
 
-            int secondPartTopBorder= sourceBitmap.Height / 2 - 48;
-            int secondPartBottomBorder= sourceBitmap.Height-48;
+            int secondPartTopBorder = sourceBitmap.Height / 2 - 48;
+            int secondPartBottomBorder = sourceBitmap.Height - 48;
 
             int separatorsCount = /*sourceBitmap.Width> tabOfBytes.Length+50?*/(sourceBitmap.Width - 50) / tabOfBytes.Length;
             int leftLimitValue = 0;
@@ -399,7 +420,7 @@ namespace BasicLibrary.ViewModels
 
             //setting coords for pixel changing
             List<Tuple<int, int>> coordsForPixelsChange = new List<Tuple<int, int>>();
-            for (int i = 0; i < tabOfBytes.Length/2; i++)
+            for (int i = 0; i < tabOfBytes.Length / 2; i++)
             {
 
                 coordsForPixelsChange.Add(new Tuple<int, int>(new Random().Next(leftLimitValue, rightLimitValue), new Random().Next(firstPartTopBorder, firstPartBottomBorder)));
@@ -427,7 +448,7 @@ namespace BasicLibrary.ViewModels
                         int newG = actualColor.G - valueDifferenceG < 0 ? 0 : actualColor.G - valueDifferenceG;
                         int newB = actualColor.B - valueDifferenceB < 0 ? 0 : actualColor.B - valueDifferenceB;
 
-                        if(tabOfBytes[coordsForPixelsChangeIndexer] > actualColor.R)
+                        if (tabOfBytes[coordsForPixelsChangeIndexer] > actualColor.R)
                         {
                             //reducing rgb values difference between images pixels
                             if (actualColor.R < tabOfBytes[coordsForPixelsChangeIndexer])
@@ -440,21 +461,21 @@ namespace BasicLibrary.ViewModels
                                 newG = actualColor.G + mod < 256 ? actualColor.G + mod : actualColor.G - mod;
                             }
                         }
-                        if(actualColor.R>tabOfBytes[coordsForPixelsChangeIndexer])
+                        if (actualColor.R > tabOfBytes[coordsForPixelsChangeIndexer])
                         {
                             if (tabOfBytes[coordsForPixelsChangeIndexer] < actualColor.R)
                             {
-                                int bytesDiff = actualColor.R - tabOfBytes[coordsForPixelsChangeIndexer]-1;
+                                int bytesDiff = actualColor.R - tabOfBytes[coordsForPixelsChangeIndexer] - 1;
                                 int mod = bytesDiff % 10;
                                 int x = bytesDiff / 10;
                                 newR = actualColor.R - 1;
                                 newG = actualColor.G + x < 256 ? actualColor.G + x : actualColor.G - x;
-                                newB = actualColor.B + mod < 256 ? actualColor.B + mod: actualColor.B - mod;
+                                newB = actualColor.B + mod < 256 ? actualColor.B + mod : actualColor.B - mod;
                             }
                         }
-                        if(actualColor.R== tabOfBytes[coordsForPixelsChangeIndexer])
+                        if (actualColor.R == tabOfBytes[coordsForPixelsChangeIndexer])
                         {
-                            newB = actualColor.B<255?actualColor.B + 1:actualColor.B-1;
+                            newB = actualColor.B < 255 ? actualColor.B + 1 : actualColor.B - 1;
                         }
 
                         //newR =tabOfBytes[coordsForPixelsChangeIndexer];
@@ -463,20 +484,20 @@ namespace BasicLibrary.ViewModels
 
                         coordsForPixelsChangeIndexer++;
                     }
-                    else if (i == sourceBitmap.Width-25 && j % 16 == 0 && ivIndexer < iv.Length)
+                    else if (i == sourceBitmap.Width - 25 && j % 16 == 0 && ivIndexer < iv.Length)
                     {
                         newColor = Color.FromArgb(actualColor.A, iv[ivIndexer], actualColor.G, actualColor.B);
                         newBitmap.SetPixel(i, j, newColor);
 
                         if (actualColor.R == iv[ivIndexer])
                         {
-                            newColor = Color.FromArgb(actualColor.A, iv[ivIndexer], actualColor.G, actualColor.B<255? actualColor.B + 1: actualColor.B - 1);
+                            newColor = Color.FromArgb(actualColor.A, iv[ivIndexer], actualColor.G, actualColor.B < 255 ? actualColor.B + 1 : actualColor.B - 1);
                             newBitmap.SetPixel(i, j, newColor);
                         }
                         ivIndexer++;
 
                     }
-                    else if (j == sourceBitmap.Height-25 && i > 50 && i < 500 && i % 10 == 0 && keyIndexer < key.Length)
+                    else if (j == sourceBitmap.Height - 25 && i > 50 && i < 500 && i % 10 == 0 && keyIndexer < key.Length)
                     {
                         newColor = Color.FromArgb(actualColor.A, key[keyIndexer], actualColor.G, actualColor.B);
                         newBitmap.SetPixel(i, j, newColor);
@@ -493,7 +514,7 @@ namespace BasicLibrary.ViewModels
                     {
                         newBitmap.SetPixel(i, j, actualColor);
                     }
-                    
+
                 }
 
             }
@@ -510,18 +531,16 @@ namespace BasicLibrary.ViewModels
 
         public void EncryptMessage()
         {
-            string encryptedMessageToShow = null;
             byte[] encryptedMessage = null;
             AesCryptoServiceProvider aes = new AesCryptoServiceProvider();
 
             if (!String.IsNullOrEmpty(MessageToHide))
             {
                 encryptedMessage = EncryptMessageToBytes(MessageToHide, Aes.Key, Aes.IV);
-                encryptedMessageToShow = Convert.ToBase64String(encryptedMessage);
             }
 
 
-            MessageToHide = encryptedMessageToShow;
+            MessageToHide = String.Empty;
             ChangePixelColor(encryptedMessage, Aes.Key, Aes.IV);
         }
 
@@ -585,7 +604,7 @@ namespace BasicLibrary.ViewModels
             Nullable<bool> result = sfd.ShowDialog();
 
 
-            if (result == true && OriginalImage!=null)
+            if (result == true && OriginalImage != null)
             {
                 OriginalImage.Save(sfd.FileName);
             }
@@ -619,4 +638,5 @@ namespace BasicLibrary.ViewModels
         #endregion Commands
 
     }
+
 }
