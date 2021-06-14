@@ -9,6 +9,9 @@ using MvvmCross.Commands;
 using MvvmCross.Navigation;
 using System.Threading.Tasks;
 using Microsoft.Win32;
+using System.Drawing.Imaging;
+using System.Windows.Media.Imaging;
+//using System.Windows.Media;
 
 namespace BasicLibrary.ViewModels
 {
@@ -19,9 +22,10 @@ namespace BasicLibrary.ViewModels
         private readonly IMvxNavigationService _navigationService;
         public IMvxCommand SwitchViewToDecoderCommand { get; set; }
         public IMvxCommand EncryptMessageCommand { get; set; }
-        public IMvxCommand HideMessageCommand { get; set; }
         public IMvxCommand LoadMessageCommand { get; set; }
         public IMvxCommand SaveMessageCommand { get; set; }
+        public IMvxCommand LoadImageCommand { get; set; }
+        public IMvxCommand SaveImageCommand { get; set; }
 
 
         #endregion Interfaces
@@ -34,10 +38,10 @@ namespace BasicLibrary.ViewModels
 
             SwitchViewToDecoderCommand = new MvxCommand(SwitchViewToDecoder);
             EncryptMessageCommand = new MvxCommand(EncryptMessage);
-            //HideMessageCommand = new MvxCommand(HideMessage);
             LoadMessageCommand = new MvxCommand(LoadMessage);
             SaveMessageCommand = new MvxCommand(SaveMessage);
-
+            LoadImageCommand = new MvxCommand(LoadImage);
+            SaveImageCommand = new MvxCommand(SaveImage);
             Aes = new AesCryptoServiceProvider();
         }
         #endregion ctor
@@ -59,7 +63,18 @@ namespace BasicLibrary.ViewModels
             set
             {
                 SetProperty(ref _messageToHide, value);
-                RaisePropertyChanged("IsEnabled");
+                if (!String.IsNullOrEmpty(MessageToHide)&& OriginalImage != null)
+                {
+                    IsEnabled = true;
+                    RaisePropertyChanged("IsEnabled");
+
+                }
+                else
+                {
+                    IsEnabled = false;
+                    RaisePropertyChanged("IsEnabled");
+
+                }
             }
         }
 
@@ -92,6 +107,34 @@ namespace BasicLibrary.ViewModels
             }
         }
 
+        private string _numOfCharactersLeftInMessage="400";
+
+        public string NumOfCharactersLeftInMessage
+        {
+            get
+            { return _numOfCharactersLeftInMessage; }
+
+            set
+            {
+                SetProperty(ref _numOfCharactersLeftInMessage, value);
+                RaisePropertyChanged(() => NumOfCharactersLeftInMessage);
+            }
+        }
+
+        private string _maxCharactersForMessage = "400";
+
+        public string MaxCharactersForMessage
+        {
+            get
+            { return _maxCharactersForMessage; }
+
+            set
+            {
+                SetProperty(ref _maxCharactersForMessage, value);
+                RaisePropertyChanged(() => MaxCharactersForMessage);
+            }
+        }
+
         private string _imageSourcePath;
 
         public string ImageSourcePath
@@ -111,11 +154,80 @@ namespace BasicLibrary.ViewModels
         public bool IsEnabled
         {
             get
-            { return _isEnabled = (!String.IsNullOrEmpty(MessageToHide)) && (String.IsNullOrEmpty(EncryptedMessage)); }
+            { return _isEnabled; }
 
             set
             {
                 SetProperty(ref _isEnabled, value);
+
+            }
+        }
+
+        private Bitmap _originalImage;
+        public Bitmap OriginalImage
+        {
+            get
+            { return _originalImage; }
+
+            set
+            {
+                SetProperty(ref _originalImage, value);
+                if (OriginalImage!=null&& !String.IsNullOrEmpty(MessageToHide))
+                {
+                    IsEnabled = true;
+                    RaisePropertyChanged("IsEnabled");
+
+                }
+                else
+                {
+                    IsEnabled = false;
+                    RaisePropertyChanged("IsEnabled");
+
+                }
+            }
+        }
+
+        private Bitmap _imageWithHiddenMessage;
+        public Bitmap ImageWithHiddenMessage
+        {
+            get
+            { return _imageWithHiddenMessage; }
+
+            set
+            {
+                SetProperty(ref _imageWithHiddenMessage, value);
+            }
+        }
+
+        private string _originalImageSourcePath;
+        public string OriginalImageSourcePath
+        {
+            get
+            { return _originalImageSourcePath; }
+
+            set
+            {
+                if (OriginalImageSourcePath != value)
+                {
+                    SetProperty(ref _originalImageSourcePath, value);
+                    RaisePropertyChanged("OriginalImage");
+                }
+            }
+        }
+
+        private string _imageWithHiddenMessageSourcePath;
+        public string ImageWithHiddenMessageSourcePath
+        {
+            get
+            { return _imageWithHiddenMessageSourcePath; }
+
+            set
+            {
+                if (_imageWithHiddenMessageSourcePath != value)
+                {
+                    SetProperty(ref _imageWithHiddenMessageSourcePath, value);
+                }
+
             }
         }
 
@@ -136,7 +248,7 @@ namespace BasicLibrary.ViewModels
                 throw new ArgumentNullException("Key");
             if (IV == null || IV.Length <= 0)
                 throw new ArgumentNullException("IV");
-
+            //messageToEncrypt = "przeciwieństwie do zwykłego: „tekst, tekst, tekst”, sprawiającego, że wygląda to „zbyt czytelnie” po polsku. Wielu webmasterów i designerów używa Lorem Ipsum jako domyślnego modelu tekstu i wpisanie w internetowej wyszukiwarce ‘lorem ipsum’ spowoduje znalezienie bardzo wielu stron, które wciąż są w budowie. Wiele wersji tekstu ewoluowało i zmieniało się przez lata, czasem przez przypadek, czasem specjalnie (humorystyczne wstawki itd). dney w Virginii, przyjrzał się uważniej jednemu z najbardziej niejasnych słów w Lorem Ipsum";
             byte[] encrypted;
 
             // Create an AesCryptoServiceProvider object
@@ -153,7 +265,7 @@ namespace BasicLibrary.ViewModels
                 {
                     using (CryptoStream csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
                     {
-                        using (StreamWriter swEncrypt = new StreamWriter(csEncrypt))
+                        using (StreamWriter swEncrypt = new StreamWriter(csEncrypt, Encoding.UTF8))
                         {
                             //Write all data to the stream.
                             swEncrypt.Write(messageToEncrypt);
@@ -231,7 +343,21 @@ namespace BasicLibrary.ViewModels
             string fileName = "C:\\Users\\Endrju\\Desktop\\Red_Image.jpg";
             bmp = (Bitmap)Image.FromFile(fileName);
             bmp = ChangeColor(bmp, tabOfBytes, key, iv);
+            ImageWithHiddenMessage = bmp;
+            /*BitmapData bitmap = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadWrite, bmp.PixelFormat);
+            List<Colors> colors = new List<Colors>();   
+            BitmapPalette bitmapPalette = new BitmapPalette(bmp.Palette);
+            BitmapSource bitmapSource = BitmapSource.Create(
+                bmp.Width,
+                bmp.Height,
+                bmp.HorizontalResolution,
+                bmp.VerticalResolution,
+                PixelFormats.Bgra32,
+                bmp.Palette,
+                new byte[bmp.Height * bitmap.Stride],
+                bitmap.Stride);*/
             bmp.Save("C:\\Users\\Endrju\\Desktop\\Saved_Image.jpg");
+            ImageWithHiddenMessageSourcePath = "C:\\Users\\Endrju\\Desktop\\Saved_Image.jpg";
             return bmp;
         }
 
@@ -337,7 +463,7 @@ namespace BasicLibrary.ViewModels
 
                         coordsForPixelsChangeIndexer++;
                     }
-                    else if (i == sourceBitmap.Width-25 && j % 8 == 0 && ivIndexer < iv.Length)
+                    else if (i == sourceBitmap.Width-25 && j % 16 == 0 && ivIndexer < iv.Length)
                     {
                         newColor = Color.FromArgb(actualColor.A, iv[ivIndexer], actualColor.G, actualColor.B);
                         newBitmap.SetPixel(i, j, newColor);
@@ -399,6 +525,8 @@ namespace BasicLibrary.ViewModels
             ChangePixelColor(encryptedMessage, Aes.Key, Aes.IV);
         }
 
+
+        #region Loading and Saving
         public void SaveMessage()
         {
             SaveFileDialog sfd = new SaveFileDialog();
@@ -444,6 +572,50 @@ namespace BasicLibrary.ViewModels
             }
 
         }
+
+        public void SaveImage()
+        {
+            SaveFileDialog sfd = new SaveFileDialog();
+            sfd.Title = "Save your image";
+            sfd.FileName = "";
+            sfd.DefaultExt = ".png";
+            sfd.Filter = "JPG Files (.jpg)|*.jpg|PNG Files (.png)|*.png";
+
+            // Display OpenFileDialog by calling ShowDialog method 
+            Nullable<bool> result = sfd.ShowDialog();
+
+
+            if (result == true && OriginalImage!=null)
+            {
+                OriginalImage.Save(sfd.FileName);
+            }
+        }
+
+        public void LoadImage()
+        {
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Title = "Choose image";
+            ofd.FileName = "";
+            ofd.DefaultExt = ".png";
+            ofd.Filter = "JPG Files (.jpg)|*.jpg|PNG Files (.png)|*.png";
+
+            // Display OpenFileDialog by calling ShowDialog method 
+            Nullable<bool> result = ofd.ShowDialog();
+
+
+            if (result == true)
+            {
+                //getting image's link for source
+                OriginalImageSourcePath = ofd.FileName;
+                ///originalImage.Source = new BitmapImage(new Uri(ofd.FileName));
+                OriginalImage = new Bitmap(Image.FromFile(ofd.FileName));
+
+            }
+        }
+
+        #endregion Loading and Saving
+
+
         #endregion Commands
 
     }

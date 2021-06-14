@@ -98,8 +98,6 @@ namespace BasicLibrary.ViewModels
                 if (_imageWithHiddenMessageSourcePath != value)
                 {
                     SetProperty(ref _imageWithHiddenMessageSourcePath, value);
-                    //ImageWithHiddenMessage = new Bitmap(Image.FromFile(_imageWithHiddenMessageSourcePath));
-                    //RaisePropertyChanged("ImageWithHiddenMessage");
                 }
 
             }
@@ -243,9 +241,9 @@ namespace BasicLibrary.ViewModels
                 {
                     using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
                     {
-                        using (StreamReader srDecrypt = new StreamReader(csDecrypt))
+                        using (StreamReader srDecrypt = new StreamReader(csDecrypt, Encoding.UTF8))
                         {
-
+                            
                             // Read the decrypted bytes from the decrypting stream
                             // and place them in a string.
                             plaintext = srDecrypt.ReadToEnd().Replace("\0", "");

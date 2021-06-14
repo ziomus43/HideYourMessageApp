@@ -13,15 +13,16 @@
     <Grid Background="Gray">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="10"/>
+            <ColumnDefinition Width="150"/>
             <ColumnDefinition Width="auto"/>
-            <ColumnDefinition Width="auto"/>
-            <ColumnDefinition Width="auto" MinWidth="100"/>
+            <ColumnDefinition Width="auto" MinWidth="60"/>
             <ColumnDefinition Width="auto"/>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="10"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="10"/>
+            <RowDefinition Height="auto"/>
             <RowDefinition Height="auto"/>
             <RowDefinition Height="auto"/>
             <RowDefinition Height="auto"/>
@@ -39,23 +40,18 @@
 
         <Image x:Name="originalImage" Grid.Row="3" Grid.Column="2" Height="400" Width="500" Source="{Binding OriginalImageSourcePath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></Image>
         <Image x:Name="imageWithHiddenMessage" Grid.Row="3" Grid.Column="4" Height="400" Width="500" Source="{Binding ImageWithHiddenMessageSourcePath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></Image>
-        <TextBox x:Name="hiddenMessage" Text="{Binding HiddenMessage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" Margin="5" Grid.Row="4" Grid.Column="2" MinHeight="150" Grid.ColumnSpan="3"></TextBox>
-
-        <WrapPanel HorizontalAlignment="Left" Grid.Row="5" Grid.Column="2" Grid.ColumnSpan="4">
+        <TextBox x:Name="hiddenMessage" Text="{Binding HiddenMessage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" Margin="5" Grid.Row="5" Grid.Column="2" MinHeight="150" Grid.ColumnSpan="3" MaxWidth="1000"></TextBox>
+      
+        <WrapPanel Grid.Row="6" Grid.Column="2" Grid.ColumnSpan="4" >
             <Button mvx:Bi.nd="Command DecryptMessageToStringCommand" Content="Decrypt Message" MinWidth="150" MaxWidth="250"  Margin="5,0,10,0" Grid.Row="5" Grid.Column="2"
                 HorizontalAlignment="Left" IsEnabled="{Binding IsEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></Button>
-            <Button x:Name="load" Content="Load" MinWidth="150" MaxWidth="250"  Margin="0,0,200,0" Grid.Row="5" Grid.Column="2"
+            <Button x:Name="saveMessageButton" Content="Save Message" MinWidth="150" MaxWidth="250"  Margin="0,0,10,0" Grid.Row="5" Grid.Column="2"
                 HorizontalAlignment="Left"></Button>
-            <Button x:Name="saveImageButton" Content="Save Image" MinWidth="150" MaxWidth="250"  Margin="0,0,10,0" Grid.Row="5" Grid.Column="2"
-                HorizontalAlignment="Right"></Button>
             <Button mvx:Bi.nd="Command LoadOriginalImageCommand" Content="Load Original Image" MinWidth="150" MaxWidth="250"  Margin="0,0,10,0" Grid.Row="5" Grid.Column="2"
                 HorizontalAlignment="Right"></Button>
             <Button mvx:Bi.nd="Command LoadImageWithMessageCommand" Content="Load Image With Message" MinWidth="150" MaxWidth="250"  Margin="0,0,10,0" Grid.Row="5" Grid.Column="2"
                 HorizontalAlignment="Right"></Button>
-            <Button x:Name="saveMessageButton" Content="Save Message" MinWidth="150" MaxWidth="250"  Margin="0,0,10,0" Grid.Row="5" Grid.Column="2"
-                HorizontalAlignment="Right"></Button>
-            <Button x:Name="loadMessageButton"  Content="Load Message" MinWidth="150" MaxWidth="250"  Margin="0,0,15,0" Grid.Row="5" Grid.Column="2"
-                HorizontalAlignment="Right"></Button>
+            
         </WrapPanel>
     </Grid>
       

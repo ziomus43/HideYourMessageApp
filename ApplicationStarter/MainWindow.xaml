@@ -7,7 +7,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ApplicationStarter"
         mc:Ignorable="d"
-        Title="MainWindow" Height="850" Width="1500">
+        Title="MainWindow" Height="900" Width="1500"
+        WindowStartupLocation="Manual" Left="0" Top="0">
     <Grid>
         
     </Grid>
