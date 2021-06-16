@@ -13,6 +13,7 @@ using System.Drawing.Imaging;
 using System.Windows.Media.Imaging;
 using BasicLibrary.Converters;
 using MvvmCross.Converters;
+using System.Windows;
 //using System.Windows.Media;
 
 namespace BasicLibrary.ViewModels
@@ -67,6 +68,9 @@ namespace BasicLibrary.ViewModels
                 SetProperty(ref _messageToHide, value);
                 NumOfCharactersLeftInMessage = MessageToHide == null ? 400 : 400 - value.Length;
                 RaisePropertyChanged("NumOfCharactersLeftInMessage");
+
+                SaveMessageIsEnabled = String.IsNullOrEmpty(MessageToHide) ? false : true;
+                RaisePropertyChanged("SaveMessageIsEnabled");
 
                 if (!String.IsNullOrEmpty(MessageToHide) && OriginalImage != null)
                 {
@@ -184,6 +188,34 @@ namespace BasicLibrary.ViewModels
             }
         }
 
+        private bool _saveMessageIsEnabled;
+
+        public bool SaveMessageIsEnabled
+        {
+            get
+            { return _saveMessageIsEnabled; }
+
+            set
+            {
+                SetProperty(ref _saveMessageIsEnabled, value);
+
+            }
+        }
+
+        private bool _saveImageIsEnabled;
+
+        public bool SaveImageIsEnabled
+        {
+            get
+            { return _saveImageIsEnabled; }
+
+            set
+            {
+                SetProperty(ref _saveImageIsEnabled, value);
+
+            }
+        }
+
         private Bitmap _originalImage;
         public Bitmap OriginalImage
         {
@@ -217,6 +249,9 @@ namespace BasicLibrary.ViewModels
             set
             {
                 SetProperty(ref _imageWithHiddenMessage, value);
+                SaveImageIsEnabled = ImageWithHiddenMessage==null ? false : true;
+                RaisePropertyChanged("SaveImageIsEnabled");
+
             }
         }
 
@@ -286,7 +321,7 @@ namespace BasicLibrary.ViewModels
                 {
                     using (CryptoStream csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
                     {
-                        using (StreamWriter swEncrypt = new StreamWriter(csEncrypt, Encoding.UTF8))
+                        using (StreamWriter swEncrypt = new StreamWriter(csEncrypt, new UTF8Encoding()))
                         {
                             //Write all data to the stream.
                             swEncrypt.Write(messageToEncrypt);
@@ -341,7 +376,7 @@ namespace BasicLibrary.ViewModels
                 {
                     using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
                     {
-                        using (StreamReader srDecrypt = new StreamReader(csDecrypt))
+                        using (StreamReader srDecrypt = new StreamReader(csDecrypt, new UTF8Encoding()))
                         {
 
                             // Read the decrypted bytes from the decrypting stream
@@ -361,7 +396,7 @@ namespace BasicLibrary.ViewModels
         public Bitmap ChangePixelColor(byte[] tabOfBytes, byte[] key, byte[] iv)
         {
             Bitmap bmp;
-            string fileName = "C:\\Users\\Endrju\\Desktop\\Red_Image.jpg";
+            string fileName = OriginalImageSourcePath;
             bmp = (Bitmap)Image.FromFile(fileName);
             bmp = ChangeColor(bmp, tabOfBytes, key, iv);
             ImageWithHiddenMessage = bmp;
@@ -377,8 +412,17 @@ namespace BasicLibrary.ViewModels
                 bmp.Palette,
                 new byte[bmp.Height * bitmap.Stride],
                 bitmap.Stride);*/
-            bmp.Save("C:\\Users\\Endrju\\Desktop\\Saved_Image.jpg");
-            ImageWithHiddenMessageSourcePath = "C:\\Users\\Endrju\\Desktop\\Saved_Image.jpg";
+            string path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+            string fName = "ImageWithMessage.jpg";
+            string fullPathToFile = path + "\\" + fName;
+
+            if (File.Exists(fullPathToFile))
+            {
+                File.Delete(fullPathToFile);
+            }
+
+            bmp.Save(fullPathToFile);
+            ImageWithHiddenMessageSourcePath = fullPathToFile;
             return bmp;
         }
 
@@ -386,9 +430,6 @@ namespace BasicLibrary.ViewModels
         public Bitmap ChangeColor(Bitmap sourceBitmap, byte[] tabOfBytes, byte[] key, byte[] iv)
         {
             //TESTS VALUES
-            int iIndexer = 500;
-            int jIndexerStart = 100;
-            int jIndexerEnd = 200;
 
             int valueDifferenceR = 30;
             int valueDifferenceG = 4;
@@ -406,7 +447,7 @@ namespace BasicLibrary.ViewModels
             int secondPartTopBorder = sourceBitmap.Height / 2 - 48;
             int secondPartBottomBorder = sourceBitmap.Height - 48;
 
-            int separatorsCount = /*sourceBitmap.Width> tabOfBytes.Length+50?*/(sourceBitmap.Width - 50) / tabOfBytes.Length;
+            int separatorsCount = (sourceBitmap.Width - 50) / tabOfBytes.Length;
             int leftLimitValue = 0;
             int rightLimitValue = separatorsCount;
 
@@ -444,9 +485,13 @@ namespace BasicLibrary.ViewModels
                     {
 
                         //testing RGB values of pixels changing for specific difference
-                        int newR = actualColor.R - valueDifferenceR < 0 ? 0 : actualColor.R - valueDifferenceR;
-                        int newG = actualColor.G - valueDifferenceG < 0 ? 0 : actualColor.G - valueDifferenceG;
-                        int newB = actualColor.B - valueDifferenceB < 0 ? 0 : actualColor.B - valueDifferenceB;
+                        //int newR = actualColor.R - valueDifferenceR < 0 ? 0 : actualColor.R - valueDifferenceR;
+                        //int newG = actualColor.G - valueDifferenceG < 0 ? 0 : actualColor.G - valueDifferenceG;
+                        //int newB = actualColor.B - valueDifferenceB < 0 ? 0 : actualColor.B - valueDifferenceB;
+
+                        int newR = actualColor.R;
+                        int newG = actualColor.G;
+                        int newB = actualColor.B;
 
                         if (tabOfBytes[coordsForPixelsChangeIndexer] > actualColor.R)
                         {
@@ -478,7 +523,6 @@ namespace BasicLibrary.ViewModels
                             newB = actualColor.B < 255 ? actualColor.B + 1 : actualColor.B - 1;
                         }
 
-                        //newR =tabOfBytes[coordsForPixelsChangeIndexer];
                         newColor = Color.FromArgb(actualColor.A, Convert.ToByte(newR), Convert.ToByte(newG), Convert.ToByte(newB));
                         newBitmap.SetPixel(i, j, newColor);
 
@@ -518,6 +562,11 @@ namespace BasicLibrary.ViewModels
                 }
 
             }
+            if (newBitmap != null)
+            {
+                MessageBox.Show("Message hidden successfully.", "Message hide", MessageBoxButton.OK, MessageBoxImage.Information, MessageBoxResult.Yes);
+
+            }
             return newBitmap;
         }
         #endregion Methods
@@ -532,8 +581,6 @@ namespace BasicLibrary.ViewModels
         public void EncryptMessage()
         {
             byte[] encryptedMessage = null;
-            AesCryptoServiceProvider aes = new AesCryptoServiceProvider();
-
             if (!String.IsNullOrEmpty(MessageToHide))
             {
                 encryptedMessage = EncryptMessageToBytes(MessageToHide, Aes.Key, Aes.IV);
@@ -623,11 +670,19 @@ namespace BasicLibrary.ViewModels
 
 
             if (result == true)
-            {
+            {                
                 //getting image's link for source
-                OriginalImageSourcePath = ofd.FileName;
-                ///originalImage.Source = new BitmapImage(new Uri(ofd.FileName));
-                OriginalImage = new Bitmap(Image.FromFile(ofd.FileName));
+                Bitmap loadedImage=new Bitmap(Image.FromFile(ofd.FileName));
+
+                if (loadedImage.Width<900 || loadedImage.Height<500)
+                {
+                    MessageBox.Show("Image's resolution is too small.", "Invalid size", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.Yes);
+                }
+                else
+                {
+                    OriginalImage = loadedImage;
+                    OriginalImageSourcePath = ofd.FileName;
+                }
 
             }
         }

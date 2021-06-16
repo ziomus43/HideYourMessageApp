@@ -10,6 +10,7 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 
@@ -24,7 +25,7 @@ namespace BasicLibrary.ViewModels
         public IMvxCommand DecryptMessageToStringCommand { get; set; }
         public IMvxCommand LoadImageWithMessageCommand { get; set; }
         public IMvxCommand LoadOriginalImageCommand { get; set; }
-
+        public IMvxCommand SaveMessageCommand { get; set; }
 
         #endregion Interfaces
 
@@ -37,6 +38,7 @@ namespace BasicLibrary.ViewModels
             DecryptMessageToStringCommand = new MvxCommand(() => DecryptMessageToString(new AesCryptoServiceProvider().Key, new AesCryptoServiceProvider().IV));
             LoadImageWithMessageCommand = new MvxCommand(LoadImageWithMessage);
             LoadOriginalImageCommand = new MvxCommand(LoadOriginalImage);
+            SaveMessageCommand = new MvxCommand(SaveMessage);
         }
         #endregion ctor
 
@@ -56,6 +58,18 @@ namespace BasicLibrary.ViewModels
             set
             {
                 SetProperty(ref _originalImage, value);
+                if (OriginalImage != null && ImageWithHiddenMessage != null)
+                {
+                    DecryptIsEnabled = true;
+                    RaisePropertyChanged("DecryptIsEnabled");
+
+                }
+                else
+                {
+                    DecryptIsEnabled = false;
+                    RaisePropertyChanged("DecryptIsEnabled");
+
+                }
             }
         }
 
@@ -67,7 +81,21 @@ namespace BasicLibrary.ViewModels
 
             set
             {
+                
                 SetProperty(ref _imageWithHiddenMessage, value);
+                if (OriginalImage != null && ImageWithHiddenMessage != null)
+                {
+                    DecryptIsEnabled = true;
+                    RaisePropertyChanged("DecryptIsEnabled");
+
+                }
+                else
+                {
+                    DecryptIsEnabled = false;
+                    RaisePropertyChanged("DecryptIsEnabled");
+
+                }
+
             }
         }
 
@@ -122,8 +150,55 @@ namespace BasicLibrary.ViewModels
             { return _hiddenMessage; }
 
             set
-            {
+           {
+                
                 SetProperty(ref _hiddenMessage, value);
+                LengthOfMessage = _hiddenMessage == null ? 0 : _hiddenMessage.Length;
+                RaisePropertyChanged("LengthOfMessage");
+
+                SaveImageIsEnabled = String.IsNullOrEmpty(HiddenMessage) ? false : true;
+                RaisePropertyChanged("SaveImageIsEnabled");
+
+            }
+        }
+
+        private int _lengthOfMessage;
+        public int LengthOfMessage
+        {
+            get
+            { return _lengthOfMessage; }
+
+            set
+            {
+                SetProperty(ref _lengthOfMessage, value);
+            }
+        }
+
+        private bool _decryptIsEnabled = false;
+        public bool DecryptIsEnabled
+        {
+            get
+            { return _decryptIsEnabled; }
+
+            set
+            {
+                
+                SetProperty(ref _decryptIsEnabled, value);
+
+            }
+        }
+
+        private bool _saveImageIsEnabled;
+
+        public bool SaveImageIsEnabled
+        {
+            get
+            { return _saveImageIsEnabled; }
+
+            set
+            {
+                SetProperty(ref _saveImageIsEnabled, value);
+
             }
         }
         #endregion Binding Properties
@@ -145,6 +220,17 @@ namespace BasicLibrary.ViewModels
             List<byte> bytesDifferenceKey = new List<byte>();
             List<byte> bytesDifferenceIV = new List<byte>();
 
+            //for better tests
+            //original image
+            int originalImgActualR;
+            int originalImgActualG;
+            int originalImgActualB;
+
+            //message image
+            int imgWithMessageActualR;
+            int imgWithMessageActualG;
+            int imgWithMessageActualB;
+
             if (originalImg.Height == imgWithMessage.Height
                 && originalImg.Width == imgWithMessage.Width)
             {
@@ -152,18 +238,26 @@ namespace BasicLibrary.ViewModels
                 {
                     for (int j = 0; j < originalImg.Height; j++)
                     {
+                        originalImgActualR = originalImg.GetPixel(i, j).R;
+                        originalImgActualG = originalImg.GetPixel(i, j).G;
+                        originalImgActualB = originalImg.GetPixel(i, j).B;
+
+                        imgWithMessageActualR = imgWithMessage.GetPixel(i, j).R;
+                        imgWithMessageActualG = imgWithMessage.GetPixel(i, j).G;
+                        imgWithMessageActualB = imgWithMessage.GetPixel(i, j).B;
+
                         //check for eventually same R values of pixels of both imgs
                         if (originalImg.GetPixel(i, j).B != imgWithMessage.GetPixel(i, j).B
                            && originalImg.GetPixel(i, j).R == imgWithMessage.GetPixel(i, j).R
                            && originalImg.GetPixel(i, j).G == imgWithMessage.GetPixel(i, j).G
-                           && i != imgWithMessage.Width - 25 
+                           && i != imgWithMessage.Width - 25
                            && j != imgWithMessage.Height - 25)
                         {
                             bytesDifferenceMessage.Add(Convert.ToByte(imgWithMessage.GetPixel(i, j).R));
                         }
                         //message values
-                        if (originalImg.GetPixel(i, j).R != imgWithMessage.GetPixel(i, j).R 
-                            && i != imgWithMessage.Width-25 && j != imgWithMessage.Height - 25)
+                        if (originalImg.GetPixel(i, j).R != imgWithMessage.GetPixel(i, j).R
+                            && i != imgWithMessage.Width - 25 && j != imgWithMessage.Height - 25)
                         {
                             //calculate correct bytes values if original R is higher
                             if (originalImg.GetPixel(i, j).R < imgWithMessage.GetPixel(i, j).R)
@@ -171,15 +265,25 @@ namespace BasicLibrary.ViewModels
                                 int diffR = imgWithMessage.GetPixel(i, j).R - originalImg.GetPixel(i, j).R;
                                 int diffRMultipledBy10 = diffR * 10;
                                 int r = originalImg.GetPixel(i, j).R + diffRMultipledBy10 + Math.Abs(imgWithMessage.GetPixel(i, j).G - originalImg.GetPixel(i, j).G);
+
+                                if (r > 255 || r < 0)
+                                {
+                                    return null;
+                                }
                                 bytesDifferenceMessage.Add(Convert.ToByte(r));
                             }
                             //calculate correct bytes values if image with message R is higher
-                            if (originalImg.GetPixel(i, j).R> imgWithMessage.GetPixel(i, j).R)
+                            if (originalImg.GetPixel(i, j).R > imgWithMessage.GetPixel(i, j).R)
                             {
                                 int diffG = Math.Abs(imgWithMessage.GetPixel(i, j).G - originalImg.GetPixel(i, j).G);
                                 int diffB = Math.Abs(imgWithMessage.GetPixel(i, j).B - originalImg.GetPixel(i, j).B);
                                 int diffGMultipliedBy10 = diffG * 10;
                                 int r = imgWithMessage.GetPixel(i, j).R - (diffGMultipliedBy10 + diffB);
+
+                                if (r > 255 || r < 0)
+                                {
+                                    return null;
+                                }
                                 bytesDifferenceMessage.Add(Convert.ToByte(r));
                             }
 
@@ -189,7 +293,6 @@ namespace BasicLibrary.ViewModels
                             || originalImg.GetPixel(i, j).B != imgWithMessage.GetPixel(i, j).B)
                             && i == imgWithMessage.Width - 25 && j < imgWithMessage.Height - 25)
                         {
-                            //bytesDifferenceKey.Add(Convert.ToByte(Math.Abs(originalImg.GetPixel(i, j).R - imgWithMessage.GetPixel(i, j).R)));
                             bytesDifferenceIV.Add(Convert.ToByte(imgWithMessage.GetPixel(i, j).R));
 
                         }
@@ -198,12 +301,17 @@ namespace BasicLibrary.ViewModels
                             || originalImg.GetPixel(i, j).B != imgWithMessage.GetPixel(i, j).B)
                             && j == imgWithMessage.Height - 25)
                         {
-                            //bytesDifferenceIV.Add(Convert.ToByte(Math.Abs(originalImg.GetPixel(i, j).R - imgWithMessage.GetPixel(i, j).R)));
                             bytesDifferenceKey.Add(Convert.ToByte(imgWithMessage.GetPixel(i, j).R));
 
                         }
                     }
                 }
+            }
+            else
+            {
+                MessageBox.Show("Probably, you aint right person to read that message.", "Message reavel", MessageBoxButton.OK, MessageBoxImage.Warning, MessageBoxResult.Yes);
+                return null;
+
             }
             key = bytesDifferenceKey.ToArray();
             iv = bytesDifferenceIV.ToArray();
@@ -216,11 +324,25 @@ namespace BasicLibrary.ViewModels
             MessageInBytes = GetBytesDifference(OriginalImage, ImageWithHiddenMessage, ref Key, ref IV);
             // Check arguments.
             if (MessageInBytes == null || MessageInBytes.Length <= 0)
-                throw new ArgumentNullException("messageInBytes");
+            {
+                MessageBox.Show("Probably, you aint right person to read that message.", "Message reavel", MessageBoxButton.OK, MessageBoxImage.Warning, MessageBoxResult.Yes);
+                return;
+            }
+
             if (Key == null || Key.Length <= 0)
-                throw new ArgumentNullException("Key");
+            {
+                MessageBox.Show("Probably, you aint right person to read that message.", "Message reavel", MessageBoxButton.OK, MessageBoxImage.Warning, MessageBoxResult.Yes); return;
+                return;
+
+            }
+
             if (IV == null || IV.Length <= 0)
-                throw new ArgumentNullException("IV");
+            {
+                MessageBox.Show("Probably, you aint right person to read that message.", "Message reavel", MessageBoxButton.OK, MessageBoxImage.Warning, MessageBoxResult.Yes);
+                return;
+
+            }
+
 
             // Declare the string used to hold
             // the decrypted text.
@@ -228,29 +350,37 @@ namespace BasicLibrary.ViewModels
 
             // Create an AesCryptoServiceProvider object
             // with the specified key and IV.
-            using (AesCryptoServiceProvider aesAlg = new AesCryptoServiceProvider())
+            try
             {
-                aesAlg.Key = Key;
-                aesAlg.IV = IV;
-                //aesAlg.Padding = PaddingMode.Zeros;
-                // Create a decryptor to perform the stream transform.
-                ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
-
-                // Create the streams used for decryption.
-                using (MemoryStream msDecrypt = new MemoryStream(MessageInBytes))
+                using (AesCryptoServiceProvider aesAlg = new AesCryptoServiceProvider())
                 {
-                    using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
+                    aesAlg.Key = Key;
+                    aesAlg.IV = IV;
+                    //aesAlg.Padding = PaddingMode.Zeros;
+                    // Create a decryptor to perform the stream transform.
+                    ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
+
+                    // Create the streams used for decryption.
+                    using (MemoryStream msDecrypt = new MemoryStream(MessageInBytes))
                     {
-                        using (StreamReader srDecrypt = new StreamReader(csDecrypt, Encoding.UTF8))
+                        using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
                         {
-                            
-                            // Read the decrypted bytes from the decrypting stream
-                            // and place them in a string.
-                            plaintext = srDecrypt.ReadToEnd().Replace("\0", "");
-                            csDecrypt.Close();
+                            using (StreamReader srDecrypt = new StreamReader(csDecrypt))
+                            {
+
+                                // Read the decrypted bytes from the decrypting stream
+                                // and place them in a string.
+                                plaintext = srDecrypt.ReadToEnd();
+                                csDecrypt.Close();
+                            }
                         }
                     }
                 }
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Probably, you aint right person to read that message.", "Message reavel", MessageBoxButton.OK, MessageBoxImage.Warning, MessageBoxResult.Yes);
+                HiddenMessage = String.Empty;
             }
             HiddenMessage = plaintext;
         }
@@ -295,6 +425,24 @@ namespace BasicLibrary.ViewModels
                 ///originalImage.Source = new BitmapImage(new Uri(ofd.FileName));
                 OriginalImage = new Bitmap(Image.FromFile(ofd.FileName));
 
+            }
+        }
+
+        public void SaveMessage()
+        {
+            SaveFileDialog sfd = new SaveFileDialog();
+            sfd.Title = "Save your text message to txt file";
+            sfd.FileName = "";
+            sfd.DefaultExt = ".txt";
+            sfd.Filter = "Text File (.txt)|*.txt";
+
+            // Display OpenFileDialog by calling ShowDialog method 
+            Nullable<bool> result = sfd.ShowDialog();
+
+
+            if (result == true && !String.IsNullOrEmpty(HiddenMessage))
+            {
+                File.WriteAllText(sfd.FileName, HiddenMessage);
             }
         }
 
