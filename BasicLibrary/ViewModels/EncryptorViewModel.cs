@@ -14,7 +14,6 @@ using System.Windows.Media.Imaging;
 using BasicLibrary.Converters;
 using MvvmCross.Converters;
 using System.Windows;
-//using System.Windows.Media;
 
 namespace BasicLibrary.ViewModels
 {
@@ -66,8 +65,11 @@ namespace BasicLibrary.ViewModels
             set
             {
                 SetProperty(ref _messageToHide, value);
-                NumOfCharactersLeftInMessage = MessageToHide == null ? 400 : 400 - value.Length;
+                NumOfCharactersLeftInMessage = MessageToHide == null ? 600 : 600 - value.Length;
                 RaisePropertyChanged("NumOfCharactersLeftInMessage");
+
+                LengthOfMessage = MessageToHide == null ? 0 : MessageToHide.Length;
+                RaisePropertyChanged("LengthOfMessage");
 
                 SaveMessageIsEnabled = String.IsNullOrEmpty(MessageToHide) ? false : true;
                 RaisePropertyChanged("SaveMessageIsEnabled");
@@ -129,7 +131,7 @@ namespace BasicLibrary.ViewModels
             }
         }
 
-        private int _numOfCharactersLeftInMessage = 400;
+        private int _numOfCharactersLeftInMessage = 600;
 
         public int NumOfCharactersLeftInMessage
         {
@@ -146,7 +148,7 @@ namespace BasicLibrary.ViewModels
             }
         }
 
-        private string _maxCharactersForMessage = "400";
+        private string _maxCharactersForMessage = "600";
 
         public string MaxCharactersForMessage
         {
@@ -157,6 +159,18 @@ namespace BasicLibrary.ViewModels
             {
                 SetProperty(ref _maxCharactersForMessage, value);
                 RaisePropertyChanged(() => MaxCharactersForMessage);
+            }
+        }
+
+        private int _lengthOfMessage;
+        public int LengthOfMessage
+        {
+            get
+            { return _lengthOfMessage; }
+
+            set
+            {
+                SetProperty(ref _lengthOfMessage, value);
             }
         }
 
@@ -287,9 +301,12 @@ namespace BasicLibrary.ViewModels
             }
         }
 
+        #endregion Binding Properties
+
+        #region Fields
         public AesCryptoServiceProvider Aes { get; set; }
 
-        #endregion Binding Properties
+        #endregion Fields
 
 
 
@@ -346,51 +363,6 @@ namespace BasicLibrary.ViewModels
             return encrypted;
         }
 
-        //For Check before making whole Decryption page
-        public string DecryptMessageToString(byte[] cipherText, byte[] Key, byte[] IV)
-        {
-            // Check arguments.
-            if (cipherText == null || cipherText.Length <= 0)
-                throw new ArgumentNullException("cipherText");
-            if (Key == null || Key.Length <= 0)
-                throw new ArgumentNullException("Key");
-            if (IV == null || IV.Length <= 0)
-                throw new ArgumentNullException("IV");
-
-            // Declare the string used to hold
-            // the decrypted text.
-            string plaintext = null;
-
-            // Create an AesCryptoServiceProvider object
-            // with the specified key and IV.
-            using (AesCryptoServiceProvider aesAlg = new AesCryptoServiceProvider())
-            {
-                aesAlg.Key = Key;
-                aesAlg.IV = IV;
-
-                // Create a decryptor to perform the stream transform.
-                ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
-
-                // Create the streams used for decryption.
-                using (MemoryStream msDecrypt = new MemoryStream(cipherText))
-                {
-                    using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
-                    {
-                        using (StreamReader srDecrypt = new StreamReader(csDecrypt, new UTF8Encoding()))
-                        {
-
-                            // Read the decrypted bytes from the decrypting stream
-                            // and place them in a string.
-                            plaintext = srDecrypt.ReadToEnd();
-                        }
-                    }
-                }
-            }
-
-            return plaintext;
-        }
-
-
 
         //Change pixel color
         public Bitmap ChangePixelColor(byte[] tabOfBytes, byte[] key, byte[] iv)
@@ -400,22 +372,19 @@ namespace BasicLibrary.ViewModels
             bmp = (Bitmap)Image.FromFile(fileName);
             bmp = ChangeColor(bmp, tabOfBytes, key, iv);
             ImageWithHiddenMessage = bmp;
-            /*BitmapData bitmap = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadWrite, bmp.PixelFormat);
-            List<Colors> colors = new List<Colors>();   
-            BitmapPalette bitmapPalette = new BitmapPalette(bmp.Palette);
-            BitmapSource bitmapSource = BitmapSource.Create(
-                bmp.Width,
-                bmp.Height,
-                bmp.HorizontalResolution,
-                bmp.VerticalResolution,
-                PixelFormats.Bgra32,
-                bmp.Palette,
-                new byte[bmp.Height * bitmap.Stride],
-                bitmap.Stride);*/
             string path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
             string fName = "ImageWithMessage.jpg";
             string fullPathToFile = path + "\\" + fName;
+            if (bmp != null)
+            {
+                MessageBox.Show("Message hidden successfully.\nImage saved as " + fName + " on desktop", "Message hide", MessageBoxButton.OK, MessageBoxImage.Information, MessageBoxResult.Yes);
 
+            }
+            else
+            {
+                return bmp;
+
+            }
             if (File.Exists(fullPathToFile))
             {
                 File.Delete(fullPathToFile);
@@ -429,11 +398,8 @@ namespace BasicLibrary.ViewModels
         //Get pixel color
         public Bitmap ChangeColor(Bitmap sourceBitmap, byte[] tabOfBytes, byte[] key, byte[] iv)
         {
-            //TESTS VALUES
 
-            int valueDifferenceR = 30;
-            int valueDifferenceG = 4;
-            int valueDifferenceB = 4;
+
 
             int coordsForPixelsChangeIndexer = 0;
 
@@ -477,6 +443,28 @@ namespace BasicLibrary.ViewModels
             List<int> RG = new List<int>();
             List<int> R2 = new List<int>();
             List<int> B1 = new List<int>();
+
+            if ((sourceBitmap.Width < 800 || sourceBitmap.Height < 500) && LengthOfMessage > 400)
+            {
+                MessageBox.Show("Image's resolution is too small.\nLarger image is needed for " + LengthOfMessage + " characters", "Invalid size", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.Yes);
+                return null;
+            }
+            else if ((sourceBitmap.Width < 1100 || sourceBitmap.Height < 500)
+                && (LengthOfMessage >= 400 && LengthOfMessage < 500))
+            {
+                MessageBox.Show("Image's resolution is too small.\nLarger image is needed for " + LengthOfMessage + " characters", "Invalid size", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.Yes);
+                return null;
+
+            }
+            else if ((sourceBitmap.Width < 1400 || sourceBitmap.Height < 500)
+                && (LengthOfMessage >= 500 && LengthOfMessage < 600))
+            {
+                MessageBox.Show("Image's resolution is too small.\nLarger image is needed for " + LengthOfMessage + " characters", "Invalid size", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.Yes);
+                return null;
+
+            }
+
+
             //Walking through Image's pixels loop
             for (int i = 0; i < sourceBitmap.Width; i++)
             {
@@ -611,11 +599,8 @@ namespace BasicLibrary.ViewModels
                 }
 
             }
-            if (newBitmap != null)
-            {
-                MessageBox.Show("Message hidden successfully.", "Message hide", MessageBoxButton.OK, MessageBoxImage.Information, MessageBoxResult.Yes);
 
-            }
+            MessageToHide = newBitmap != null ? String.Empty : MessageToHide;
             return newBitmap;
         }
         #endregion Methods
@@ -636,7 +621,6 @@ namespace BasicLibrary.ViewModels
             }
 
 
-            MessageToHide = String.Empty;
             ChangePixelColor(encryptedMessage, Aes.Key, Aes.IV);
         }
 

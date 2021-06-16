@@ -35,6 +35,5 @@ namespace ApplicationStarter.Views
 
         EncryptorViewModel encryptorViewModel;
 
-
     }
 }

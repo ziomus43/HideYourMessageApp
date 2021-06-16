@@ -344,20 +344,20 @@ namespace BasicLibrary.ViewModels
             // Check arguments.
             if (MessageInBytes == null || MessageInBytes.Length <= 0)
             {
-                MessageBox.Show("Probably, you aint right person to read that message.", "Message reavel", MessageBoxButton.OK, MessageBoxImage.Warning, MessageBoxResult.Yes);
+                MessageBox.Show("Probably, you aint right person to read that message.", "Message reveal", MessageBoxButton.OK, MessageBoxImage.Warning, MessageBoxResult.Yes);
                 return;
             }
 
             if (Key == null || Key.Length <= 0)
             {
-                MessageBox.Show("Probably, you aint right person to read that message.", "Message reavel", MessageBoxButton.OK, MessageBoxImage.Warning, MessageBoxResult.Yes); return;
+                MessageBox.Show("Probably, you aint right person to read that message.", "Message reveal", MessageBoxButton.OK, MessageBoxImage.Warning, MessageBoxResult.Yes); return;
                 return;
 
             }
 
             if (IV == null || IV.Length <= 0)
             {
-                MessageBox.Show("Probably, you aint right person to read that message.", "Message reavel", MessageBoxButton.OK, MessageBoxImage.Warning, MessageBoxResult.Yes);
+                MessageBox.Show("Probably, you aint right person to read that message.", "Message reveal", MessageBoxButton.OK, MessageBoxImage.Warning, MessageBoxResult.Yes);
                 return;
 
             }
@@ -398,7 +398,7 @@ namespace BasicLibrary.ViewModels
             }
             catch (Exception)
             {
-                MessageBox.Show("Probably, you aint right person to read that message.", "Message reavel", MessageBoxButton.OK, MessageBoxImage.Warning, MessageBoxResult.Yes);
+                MessageBox.Show("Probably, you aint right person to read that message.", "Message reveal", MessageBoxButton.OK, MessageBoxImage.Warning, MessageBoxResult.Yes);
                 HiddenMessage = String.Empty;
             }
             HiddenMessage = plaintext;

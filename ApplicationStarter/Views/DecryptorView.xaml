@@ -47,11 +47,28 @@
             <Image x:Name="originalImage" Grid.Row="3" Grid.Column="2" Height="350" Width="550" Source="{Binding OriginalImageSourcePath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></Image>
             <Image x:Name="imageWithHiddenMessage" Grid.Row="3" Grid.Column="4" Height="350" Width="550" Source="{Binding ImageWithHiddenMessageSourcePath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></Image>
 
-            <StackPanel Orientation="Horizontal" Grid.Row="4" Grid.Column="2" Grid.ColumnSpan="2" FlowDirection="LeftToRight" Height="50">
-                <TextBlock Text="Lenght of the message: " FontSize="35" TextBlock.FontWeight="Bold"></TextBlock>
+            <StackPanel Orientation="Horizontal" Grid.Row="4" Grid.Column="2" Grid.ColumnSpan="2" FlowDirection="LeftToRight" Height="50" Margin="35,0,0,0">
+                <TextBlock Text="MESSAGE LENGTH: " FontSize="35" TextBlock.FontWeight="Bold"></TextBlock>
                 <TextBlock Text="{Binding LengthOfMessage, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged, Converter={StaticResource IntToStringValueConverter}}" FontSize="35" TextBlock.Foreground="Red" TextBlock.FontWeight="Bold"></TextBlock>
             </StackPanel>
 
+            <Grid Grid.Row="4" Grid.Column="1" Grid.RowSpan="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="150"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="HOW TO:" FontSize="20"  Height="25" TextWrapping="Wrap" Margin="0,30,0,0"/>
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="1. Load original image" Height="25" TextWrapping="Wrap" Margin="0,30,0,0"/>
+                <TextBlock Grid.Row="2" Grid.Column="0" Text="2. Load image with hidden message" Height="45" TextWrapping="Wrap" Margin="0,10,0,0"/>
+                <TextBlock Grid.Row="3" Grid.Column="0" Text="3. Press Decrypt Message button to retrieve hidden message" Height="85" TextWrapping="Wrap" Margin="0,10,0,0"/>
+
+            </Grid>
+            
             <TextBox x:Name="hiddenMessage" Text="{Binding HiddenMessage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" Margin="5" Grid.Row="5" Grid.Column="2" MinHeight="150" Grid.ColumnSpan="3" MaxWidth="1100" MaxLength="2000"></TextBox>
 
             <Button mvx:Bi.nd="Command DecryptMessageToStringCommand" Content="Decrypt Message" MinWidth="150" MaxWidth="250"  Margin="35,0,10,0" Grid.Row="6" Grid.Column="2" FontSize="20" Padding="8"
