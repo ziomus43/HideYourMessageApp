@@ -249,7 +249,7 @@ namespace BasicLibrary.ViewModels
             set
             {
                 SetProperty(ref _imageWithHiddenMessage, value);
-                SaveImageIsEnabled = ImageWithHiddenMessage==null ? false : true;
+                SaveImageIsEnabled = ImageWithHiddenMessage == null ? false : true;
                 RaisePropertyChanged("SaveImageIsEnabled");
 
             }
@@ -471,12 +471,18 @@ namespace BasicLibrary.ViewModels
                 rightLimitValue += separatorsCount + 1;
                 even += 2;
             }
-
+            //for testing purpose
+            int counterOfChangingOccurs = 0;
+            List<int> R1 = new List<int>();
+            List<int> RG = new List<int>();
+            List<int> R2 = new List<int>();
+            List<int> B1 = new List<int>();
             //Walking through Image's pixels loop
             for (int i = 0; i < sourceBitmap.Width; i++)
             {
                 for (int j = 0; j < sourceBitmap.Height; j++)
                 {
+                    //color of specific pixel image
                     actualColor = sourceBitmap.GetPixel(i, j);
 
                     if (coordsForPixelsChangeIndexer < coordsForPixelsChange.Count
@@ -492,7 +498,7 @@ namespace BasicLibrary.ViewModels
                         int newR = actualColor.R;
                         int newG = actualColor.G;
                         int newB = actualColor.B;
-
+                        //for originalR LOWER than message byte value
                         if (tabOfBytes[coordsForPixelsChangeIndexer] > actualColor.R)
                         {
                             //reducing rgb values difference between images pixels
@@ -504,10 +510,27 @@ namespace BasicLibrary.ViewModels
                                 int xMultipliedBy10 = x * 10;
                                 newR = actualColor.R + x;
                                 newG = actualColor.G + mod < 256 ? actualColor.G + mod : actualColor.G - mod;
+                                if (newR != actualColor.R)
+                                {
+                                    counterOfChangingOccurs++;
+                                }
+                                else if (newR != actualColor.R && newG != actualColor.G)
+                                {
+
+                                    RG.Add(newR);
+                                }
+                                else
+                                //R1 test
+                                {
+                                    R1.Add(newR);
+                                    newG = actualColor.G + bytesDiff < 256 ? actualColor.G + bytesDiff : actualColor.G - bytesDiff;
+                                }
                             }
                         }
+                        //for originalR HIGHER than message byte value
                         if (actualColor.R > tabOfBytes[coordsForPixelsChangeIndexer])
                         {
+                            //reducing rgb values difference between images pixels
                             if (tabOfBytes[coordsForPixelsChangeIndexer] < actualColor.R)
                             {
                                 int bytesDiff = actualColor.R - tabOfBytes[coordsForPixelsChangeIndexer] - 1;
@@ -516,18 +539,43 @@ namespace BasicLibrary.ViewModels
                                 newR = actualColor.R - 1;
                                 newG = actualColor.G + x < 256 ? actualColor.G + x : actualColor.G - x;
                                 newB = actualColor.B + mod < 256 ? actualColor.B + mod : actualColor.B - mod;
+                                if (newR != actualColor.R)
+                                {
+                                    counterOfChangingOccurs++;
+                                }
+                                else
+                                //R2 test
+                                {
+                                    R2.Add(newR);
+
+                                }
                             }
                         }
+                        //for originalR EQUALS message byte value
                         if (actualColor.R == tabOfBytes[coordsForPixelsChangeIndexer])
                         {
                             newB = actualColor.B < 255 ? actualColor.B + 1 : actualColor.B - 1;
+                            if (newB != actualColor.B)
+                            {
+                                counterOfChangingOccurs++;
+
+                            }
+                            //B11 test
+                            else
+                            {
+                                B1.Add(newB);
+
+                            }
+
                         }
 
+                        //setting new color on new bitmap
                         newColor = Color.FromArgb(actualColor.A, Convert.ToByte(newR), Convert.ToByte(newG), Convert.ToByte(newB));
                         newBitmap.SetPixel(i, j, newColor);
 
                         coordsForPixelsChangeIndexer++;
                     }
+                    //Putting IV TAB
                     else if (i == sourceBitmap.Width - 25 && j % 16 == 0 && ivIndexer < iv.Length)
                     {
                         newColor = Color.FromArgb(actualColor.A, iv[ivIndexer], actualColor.G, actualColor.B);
@@ -541,6 +589,7 @@ namespace BasicLibrary.ViewModels
                         ivIndexer++;
 
                     }
+                    //Putting KEY TAB
                     else if (j == sourceBitmap.Height - 25 && i > 50 && i < 500 && i % 10 == 0 && keyIndexer < key.Length)
                     {
                         newColor = Color.FromArgb(actualColor.A, key[keyIndexer], actualColor.G, actualColor.B);
@@ -670,11 +719,11 @@ namespace BasicLibrary.ViewModels
 
 
             if (result == true)
-            {                
+            {
                 //getting image's link for source
-                Bitmap loadedImage=new Bitmap(Image.FromFile(ofd.FileName));
+                Bitmap loadedImage = new Bitmap(Image.FromFile(ofd.FileName));
 
-                if (loadedImage.Width<900 || loadedImage.Height<500)
+                if (loadedImage.Width < 900 || loadedImage.Height < 500)
                 {
                     MessageBox.Show("Image's resolution is too small.", "Invalid size", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.Yes);
                 }
