@@ -16,7 +16,7 @@
                 <ColumnDefinition Width="15"/>
                 <ColumnDefinition Width="150"/>
                 <ColumnDefinition Width="auto"/>
-                <ColumnDefinition Width="*" MinWidth="60"/>
+                <ColumnDefinition Width="70" MaxWidth="75"/>
                 <ColumnDefinition Width="auto"/>
                 <ColumnDefinition Width="150"/>
                 <ColumnDefinition Width="15"/>
@@ -39,6 +39,7 @@
                 <TextBlock Text="DECODER" FontWeight="Bold" FontSize="40"></TextBlock>
             </Button>
 
+            
             <TextBlock Text="Original image" Grid.Row="2" Grid.Column="2" Margin="10" FontSize="30" HorizontalAlignment="Center"></TextBlock>
 
             <TextBlock Text="Image with hidden message" Grid.Row="2" Grid.Column="4" Margin="10" FontSize="30" HorizontalAlignment="Center"></TextBlock>

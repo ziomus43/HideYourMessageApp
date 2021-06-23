@@ -17,7 +17,7 @@
                 <ColumnDefinition Width="15"/>
                 <ColumnDefinition Width="150"/>
                 <ColumnDefinition Width="auto"/>
-                <ColumnDefinition Width="*" MinWidth="60"/>
+                <ColumnDefinition Width="70" MaxWidth="75"/>
                 <ColumnDefinition Width="auto"/>
                 <ColumnDefinition Width="150"/>
                 <ColumnDefinition Width="15"/>
@@ -40,6 +40,12 @@
             <Button mvx:Bi.nd="Command SwitchViewToDecoderCommand" Grid.Row="1" Grid.Column="2" Background="Azure" MinHeight="50" Width="200" HorizontalAlignment="Center" Padding="10" Margin="0,0,230,0">
                 <TextBlock Text="DECODER" FontWeight="Bold" FontSize="40"></TextBlock>
             </Button>
+
+            <TextBlock Text="Res" Grid.Row="2" Grid.Column="3" Margin="10" FontSize="30" HorizontalAlignment="Center" TextWrapping="Wrap"></TextBlock>
+            <TextBlock Text="{Binding ImgWidth , Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextBlock.Foreground="{Binding WidthColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Row="3" Grid.Column="3" Margin="5" Height="150" FontSize="26" HorizontalAlignment="Center" VerticalAlignment="Top" TextWrapping="Wrap"></TextBlock>
+            <TextBlock Text="x" Grid.Row="3" Grid.Column="3" Margin="5,35,5,5" Height="150" FontSize="26" HorizontalAlignment="Center" VerticalAlignment="Top" TextWrapping="Wrap"></TextBlock>
+            <TextBlock Text="{Binding ImgHeight , Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextBlock.Foreground="{Binding HeightColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Row="3" Grid.Column="3" Margin="5,70,5,5" Height="150" FontSize="26" HorizontalAlignment="Center" VerticalAlignment="Top" TextWrapping="Wrap"></TextBlock>
+
 
             <TextBlock Text="Image to hide message within" Grid.Row="2" Grid.Column="2" Margin="10" FontSize="30" HorizontalAlignment="Center"></TextBlock>
 

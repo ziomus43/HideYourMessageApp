@@ -171,6 +171,64 @@ namespace BasicLibrary.ViewModels
             set
             {
                 SetProperty(ref _lengthOfMessage, value);
+
+                if (OriginalImage!=null && ImgWidth < 800 && LengthOfMessage > 400)
+                {
+                    WidthColor = "Red";
+                    RaisePropertyChanged("WidthColor");
+
+                }
+                else if (OriginalImage != null && (ImgWidth < 1100) && (LengthOfMessage >= 400 && LengthOfMessage < 500))
+                {
+                    WidthColor = "Red";
+                    RaisePropertyChanged("WidthColor");
+
+                }
+                else if (OriginalImage != null && (ImgWidth < 1400) && (LengthOfMessage >= 500 && LengthOfMessage <= 600))
+                {
+                    WidthColor = "Red";
+                    RaisePropertyChanged("WidthColor");
+
+                }
+                else
+                {
+                    if(OriginalImage != null)
+                    {
+                        WidthColor = "Green";
+                        RaisePropertyChanged("WidthColor");
+                    }
+                    else
+                    {
+                        WidthColor = "Black";
+                        RaisePropertyChanged("WidthColor");
+                    }
+                    
+
+                }
+
+
+                if (OriginalImage != null && ImgHeight < 500 && LengthOfMessage > 400)
+                {
+                    HeightColor = "Red";
+                    RaisePropertyChanged("HeightColor");
+
+                }
+                else
+                {
+                    if (OriginalImage != null)
+                    {
+                        HeightColor = "Green";
+                        RaisePropertyChanged("HeightColor");
+                    }
+                    else
+                    {
+                        HeightColor = "Black";
+                        RaisePropertyChanged("HeightColor");
+                    }
+
+                }
+
+
             }
         }
 
@@ -239,6 +297,13 @@ namespace BasicLibrary.ViewModels
             set
             {
                 SetProperty(ref _originalImage, value);
+                ImgHeight = OriginalImage != null ? OriginalImage.Height : ImgHeight;
+                RaisePropertyChanged("ImgHeight");
+
+                ImgWidth = OriginalImage != null ? OriginalImage.Width : ImgWidth;
+                RaisePropertyChanged("ImgWidth");
+                RaisePropertyChanged("LengthOfMessage");
+
                 if (OriginalImage != null && !String.IsNullOrEmpty(MessageToHide))
                 {
                     IsEnabled = true;
@@ -296,6 +361,74 @@ namespace BasicLibrary.ViewModels
                 if (_imageWithHiddenMessageSourcePath != value)
                 {
                     SetProperty(ref _imageWithHiddenMessageSourcePath, value);
+                }
+
+            }
+        }
+
+        private int _imgHeight;
+        public int ImgHeight
+        {
+            get
+            { return _imgHeight; }
+
+            set
+            {
+                if (_imgHeight != value)
+                {
+                    SetProperty(ref _imgHeight, value);
+                }
+
+            }
+        }
+
+        private int _imgWidth;
+        public int ImgWidth
+        {
+            get
+            { return _imgWidth; }
+
+            set
+            {
+                if (_imgWidth != value)
+                {
+                    SetProperty(ref _imgWidth, value);
+                }
+
+            }
+        }
+
+        private string _heightColor="Black";
+        public string HeightColor
+        {
+            get
+            {
+                return _heightColor;
+            }
+            set
+            {
+                if (_heightColor != value)
+                {
+                    SetProperty(ref _heightColor, value);
+                }
+
+            }
+        }
+
+        private string _widthColor="Black";
+        public string WidthColor
+        {
+            get
+            {
+
+                return _widthColor;
+            }
+
+            set
+            {
+                if (_widthColor != value)
+                {
+                    SetProperty(ref _widthColor, value);
                 }
 
             }
@@ -398,8 +531,8 @@ namespace BasicLibrary.ViewModels
         //Get pixel color
         public Bitmap ChangeColor(Bitmap sourceBitmap, byte[] tabOfBytes, byte[] key, byte[] iv)
         {
-
-
+            ImgHeight = sourceBitmap.Height;
+            ImgWidth = sourceBitmap.Width;
 
             int coordsForPixelsChangeIndexer = 0;
 
@@ -715,6 +848,7 @@ namespace BasicLibrary.ViewModels
                 {
                     OriginalImage = loadedImage;
                     OriginalImageSourcePath = ofd.FileName;
+                    LengthOfMessage = MessageToHide!=null?MessageToHide.Length: LengthOfMessage;
                 }
 
             }
