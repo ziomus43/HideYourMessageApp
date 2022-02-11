@@ -19,7 +19,7 @@ using MvvmCross.Navigation;
 namespace ApplicationStarter.Views
 {
     /// <summary>
-    /// Logika interakcji dla klasy DecryptorView.xaml
+    /// Interaction logic for DecryptorView.xaml
     /// </summary>
     public partial class DecryptorView : MvxWpfView
     {

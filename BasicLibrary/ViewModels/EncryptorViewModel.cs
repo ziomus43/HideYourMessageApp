@@ -55,7 +55,7 @@ namespace BasicLibrary.ViewModels
 
 
         #region Binding Properties
-        private string _messageToHide;
+        private string _messageToHide="efgh";
 
         public string MessageToHide
         {
@@ -454,7 +454,6 @@ namespace BasicLibrary.ViewModels
                 throw new ArgumentNullException("Key");
             if (IV == null || IV.Length <= 0)
                 throw new ArgumentNullException("IV");
-            //messageToEncrypt = "przeciwieństwie do zwykłego: „tekst, tekst, tekst”, sprawiającego, że wygląda to „zbyt czytelnie” po polsku. Wielu webmasterów i designerów używa Lorem Ipsum jako domyślnego modelu tekstu i wpisanie w internetowej wyszukiwarce ‘lorem ipsum’ spowoduje znalezienie bardzo wielu stron, które wciąż są w budowie. Wiele wersji tekstu ewoluowało i zmieniało się przez lata, czasem przez przypadek, czasem specjalnie (humorystyczne wstawki itd). dney w Virginii, przyjrzał się uważniej jednemu z najbardziej niejasnych słów w Lorem Ipsum";
             byte[] encrypted;
 
             // Create an AesCryptoServiceProvider object
@@ -664,8 +663,8 @@ namespace BasicLibrary.ViewModels
                                 {
                                     counterOfChangingOccurs++;
                                 }
-                                else
                                 //R2 test
+                                else
                                 {
                                     R2.Add(newR);
 

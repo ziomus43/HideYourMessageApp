@@ -350,7 +350,7 @@ namespace BasicLibrary.ViewModels
 
             if (Key == null || Key.Length <= 0)
             {
-                MessageBox.Show("Probably, you aint right person to read that message.", "Message reveal", MessageBoxButton.OK, MessageBoxImage.Warning, MessageBoxResult.Yes); return;
+                MessageBox.Show("Probably, you aint right person to read that message.", "Message reveal", MessageBoxButton.OK, MessageBoxImage.Warning, MessageBoxResult.Yes);
                 return;
 
             }
@@ -375,7 +375,6 @@ namespace BasicLibrary.ViewModels
                 {
                     aesAlg.Key = Key;
                     aesAlg.IV = IV;
-                    //aesAlg.Padding = PaddingMode.Zeros;
                     // Create a decryptor to perform the stream transform.
                     ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
 
@@ -420,7 +419,6 @@ namespace BasicLibrary.ViewModels
             {
                 //getting image's link for source
                 ImageWithHiddenMessageSourcePath = ofd.FileName;
-                //imageWithHiddenMessage.Source = new BitmapImage(new Uri(ofd.FileName));
                 ImageWithHiddenMessage = new Bitmap(Image.FromFile(ofd.FileName));
             }
         }
@@ -441,7 +439,6 @@ namespace BasicLibrary.ViewModels
             {
                 //getting image's link for source
                 OriginalImageSourcePath = ofd.FileName;
-                ///originalImage.Source = new BitmapImage(new Uri(ofd.FileName));
                 OriginalImage = new Bitmap(Image.FromFile(ofd.FileName));
 
             }

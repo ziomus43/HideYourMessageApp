@@ -75,8 +75,9 @@
             <Button mvx:Bi.nd="Command DecryptMessageToStringCommand" Content="Decrypt Message" MinWidth="150" MaxWidth="250"  Margin="35,0,10,0" Grid.Row="6" Grid.Column="2" FontSize="20" Padding="8"
                 HorizontalAlignment="Left" IsEnabled="{Binding DecryptIsEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></Button>
             <StackPanel Orientation="Horizontal" Grid.Row="6" Grid.Column="2" Grid.ColumnSpan="3" FlowDirection="RightToLeft" Margin="0,0,35,0">
-                <Button mvx:Bi.nd="Command SaveMessageCommand" Content="Save Message" MinWidth="150" MaxWidth="250"  Margin="0,0,10,0" Grid.Row="5" Grid.Column="2" FontSize="20" Padding="8"
-                IsEnabled="{Binding SaveMessageIsEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></Button>
+                <Button mvx:Bi.nd="Command SaveMessageCommand" Content="Save Message" MinWidth="150" MaxWidth="250"
+                        Margin="0,0,10,0" Grid.Row="5" Grid.Column="2" FontSize="20" Padding="8"
+                        IsEnabled="{Binding SaveMessageIsEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></Button>
                 <Button mvx:Bi.nd="Command LoadImageWithMessageCommand" Content="Load Image With Message" MinWidth="150" MaxWidth="250"  Margin="30,0,10,0" Grid.Row="5" Grid.Column="2" FontSize="20" Padding="8"
                 ></Button>
                 <Button mvx:Bi.nd="Command LoadOriginalImageCommand" Content="Load Original Image" MinWidth="150" MaxWidth="250"  Margin="0,0,10,0" Grid.Row="5" Grid.Column="2" FontSize="20" Padding="8"

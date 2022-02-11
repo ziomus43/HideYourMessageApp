@@ -71,7 +71,8 @@
                 <TextBlock Grid.Row="3" Grid.Column="0" Text="3. Press Encrypt Message button to generate image with hidden message" Height="85" TextWrapping="Wrap" Margin="0,10,0,0"/>
 
             </Grid>
-            <TextBox Text="{Binding MessageToHide, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MaxLength="{Binding MaxCharactersForMessage}" TextWrapping="Wrap" Margin="5" Grid.Row="5" Grid.Column="2" MinHeight="150" Grid.ColumnSpan="3" MaxWidth="1100"></TextBox>
+            <TextBox Text="{Binding MessageToHide, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MaxLength="{Binding MaxCharactersForMessage}"
+                     TextWrapping="Wrap" Margin="5" Grid.Row="5" Grid.Column="2" MinHeight="150" Grid.ColumnSpan="3" MaxWidth="1100"></TextBox>
 
             <StackPanel Orientation="Horizontal" Grid.Row="4" Grid.Column="2" Grid.ColumnSpan="2" FlowDirection="LeftToRight" Height="50">
                 <TextBlock Text="MAX CHARACTERS: " FontSize="35" TextBlock.FontWeight="Bold" Margin="35,0,0,0"></TextBlock>
@@ -82,15 +83,6 @@
                 <TextBlock Text="MESSAGE LENGTH: " FontSize="35" TextBlock.FontWeight="Bold"></TextBlock>
                 <TextBlock Text="{Binding LengthOfMessage, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource IntToStringValueConverter}}" FontSize="35" TextBlock.Foreground="Red" TextBlock.FontWeight="Bold"></TextBlock>
             </StackPanel>
-
-
-            <!--
-                
-
-                <TextBlock  Grid.Row="2" Grid.Column="0" MaxWidth="200" Margin="5,15,5,5" Text="NUMBER OF CHARACTERS LEFT" FontSize="23" HorizontalAlignment="Center" TextWrapping="Wrap"></TextBlock>
-                <TextBlock  Grid.Row="3" Grid.Column="0" Margin="5" Text="{Binding NumOfCharactersLeftInMessage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="35" HorizontalAlignment="Center" ></TextBlock>-->
-
-
 
 
             <Button mvx:Bi.nd="Command EncryptMessageCommand" Content="Encrypt Message" Grid.Row="6" Grid.Column="2" MinWidth="150" MaxWidth="250" Margin="35,0,10,0" FontSize="20"  Padding="8"

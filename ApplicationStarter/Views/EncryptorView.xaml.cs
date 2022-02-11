@@ -20,7 +20,7 @@ using MvvmCross.Navigation;
 namespace ApplicationStarter.Views
 {
     /// <summary>
-    /// Interaction logic for EncryptDecryptView.xaml
+    /// Interaction logic for EncryptorView.xaml
     /// </summary>
     public partial class EncryptorView : MvxWpfView
     {
