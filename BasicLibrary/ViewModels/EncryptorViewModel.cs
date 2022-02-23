@@ -55,7 +55,7 @@ namespace BasicLibrary.ViewModels
 
 
         #region Binding Properties
-        private string _messageToHide="efgh";
+        private string _messageToHide;
 
         public string MessageToHide
         {
@@ -172,7 +172,7 @@ namespace BasicLibrary.ViewModels
             {
                 SetProperty(ref _lengthOfMessage, value);
 
-                if (OriginalImage!=null && ImgWidth < 800 && LengthOfMessage > 400)
+                if (OriginalImage != null && ImgWidth < 800 && LengthOfMessage > 400)
                 {
                     WidthColor = "Red";
                     RaisePropertyChanged("WidthColor");
@@ -192,7 +192,7 @@ namespace BasicLibrary.ViewModels
                 }
                 else
                 {
-                    if(OriginalImage != null)
+                    if (OriginalImage != null)
                     {
                         WidthColor = "Green";
                         RaisePropertyChanged("WidthColor");
@@ -202,7 +202,7 @@ namespace BasicLibrary.ViewModels
                         WidthColor = "Black";
                         RaisePropertyChanged("WidthColor");
                     }
-                    
+
 
                 }
 
@@ -398,7 +398,7 @@ namespace BasicLibrary.ViewModels
             }
         }
 
-        private string _heightColor="Black";
+        private string _heightColor = "Black";
         public string HeightColor
         {
             get
@@ -415,7 +415,7 @@ namespace BasicLibrary.ViewModels
             }
         }
 
-        private string _widthColor="Black";
+        private string _widthColor = "Black";
         public string WidthColor
         {
             get
@@ -519,6 +519,7 @@ namespace BasicLibrary.ViewModels
             }
             if (File.Exists(fullPathToFile))
             {
+                ImageWithHiddenMessage = null;
                 File.Delete(fullPathToFile);
             }
 
@@ -527,8 +528,42 @@ namespace BasicLibrary.ViewModels
             return bmp;
         }
 
+        public byte[] CalculateRGBFromMessage(byte valueR, byte valueG, byte valueB, byte encryptedMessageByte)
+        {
+            int newR;
+            int newG;
+            int newB;
+
+            if (encryptedMessageByte > valueR)
+            {
+                int bytesDiff = encryptedMessageByte - valueR;
+                int mod = bytesDiff % 10;
+                int x = bytesDiff / 10;
+                newR = valueR + x;
+                newG = valueG + mod < 256 ? valueG + mod : valueG - mod;
+                newB = valueB;
+            }
+            else if(encryptedMessageByte < valueR)
+            {
+                int bytesDiff = valueR - encryptedMessageByte - 1;
+                int mod = bytesDiff % 10;
+                int x = bytesDiff / 10;
+                newR = valueR - 1;
+                newG = valueG + x < 256 ? valueG + x : valueG - x;
+                newB = valueB + mod < 256 ? valueB + mod : valueB - mod;
+            }
+            else
+            {
+                newR = valueR;
+                newG = valueG;
+                newB = valueB < 255 ? valueB + 1 : valueB - 1;
+            }
+
+            return new byte[] { Convert.ToByte(newR), Convert.ToByte(newG), Convert.ToByte(newB) };
+        }
+
         //Get pixel color
-        public Bitmap ChangeColor(Bitmap sourceBitmap, byte[] tabOfBytes, byte[] key, byte[] iv)
+        public Bitmap ChangeColor(Bitmap sourceBitmap, byte[] encryptedMessageInBytes, byte[] key, byte[] iv)
         {
             ImgHeight = sourceBitmap.Height;
             ImgWidth = sourceBitmap.Width;
@@ -545,7 +580,7 @@ namespace BasicLibrary.ViewModels
             int secondPartTopBorder = sourceBitmap.Height / 2 - 48;
             int secondPartBottomBorder = sourceBitmap.Height - 48;
 
-            int separatorsCount = (sourceBitmap.Width - 50) / tabOfBytes.Length;
+            int separatorsCount = (sourceBitmap.Width - 50) / encryptedMessageInBytes.Length;
             int leftLimitValue = 0;
             int rightLimitValue = separatorsCount;
 
@@ -559,7 +594,7 @@ namespace BasicLibrary.ViewModels
 
             //setting coords for pixel changing
             List<Tuple<int, int>> coordsForPixelsChange = new List<Tuple<int, int>>();
-            for (int i = 0; i < tabOfBytes.Length / 2; i++)
+            for (int i = 0; i < encryptedMessageInBytes.Length / 2; i++)
             {
 
                 coordsForPixelsChange.Add(new Tuple<int, int>(new Random().Next(leftLimitValue, rightLimitValue), new Random().Next(firstPartTopBorder, firstPartBottomBorder)));
@@ -569,12 +604,7 @@ namespace BasicLibrary.ViewModels
                 rightLimitValue += separatorsCount + 1;
                 even += 2;
             }
-            //for testing purpose
-            int counterOfChangingOccurs = 0;
-            List<int> R1 = new List<int>();
-            List<int> RG = new List<int>();
-            List<int> R2 = new List<int>();
-            List<int> B1 = new List<int>();
+
 
             if ((sourceBitmap.Width < 800 || sourceBitmap.Height < 500) && LengthOfMessage > 400)
             {
@@ -610,116 +640,34 @@ namespace BasicLibrary.ViewModels
                         && j == coordsForPixelsChange[coordsForPixelsChangeIndexer].Item2)
                     {
 
-                        //testing RGB values of pixels changing for specific difference
-                        //int newR = actualColor.R - valueDifferenceR < 0 ? 0 : actualColor.R - valueDifferenceR;
-                        //int newG = actualColor.G - valueDifferenceG < 0 ? 0 : actualColor.G - valueDifferenceG;
-                        //int newB = actualColor.B - valueDifferenceB < 0 ? 0 : actualColor.B - valueDifferenceB;
-
-                        int newR = actualColor.R;
-                        int newG = actualColor.G;
-                        int newB = actualColor.B;
-                        //for originalR LOWER than message byte value
-                        if (tabOfBytes[coordsForPixelsChangeIndexer] > actualColor.R)
-                        {
-                            //reducing rgb values difference between images pixels
-                            if (actualColor.R < tabOfBytes[coordsForPixelsChangeIndexer])
-                            {
-                                int bytesDiff = tabOfBytes[coordsForPixelsChangeIndexer] - actualColor.R;
-                                int mod = bytesDiff % 10;
-                                int x = bytesDiff / 10;
-                                int xMultipliedBy10 = x * 10;
-                                newR = actualColor.R + x;
-                                newG = actualColor.G + mod < 256 ? actualColor.G + mod : actualColor.G - mod;
-                                if (newR != actualColor.R)
-                                {
-                                    counterOfChangingOccurs++;
-                                }
-                                else if (newR != actualColor.R && newG != actualColor.G)
-                                {
-
-                                    RG.Add(newR);
-                                }
-                                else
-                                //R1 test
-                                {
-                                    R1.Add(newR);
-                                    newG = actualColor.G + bytesDiff < 256 ? actualColor.G + bytesDiff : actualColor.G - bytesDiff;
-                                }
-                            }
-                        }
-                        //for originalR HIGHER than message byte value
-                        if (actualColor.R > tabOfBytes[coordsForPixelsChangeIndexer])
-                        {
-                            //reducing rgb values difference between images pixels
-                            if (tabOfBytes[coordsForPixelsChangeIndexer] < actualColor.R)
-                            {
-                                int bytesDiff = actualColor.R - tabOfBytes[coordsForPixelsChangeIndexer] - 1;
-                                int mod = bytesDiff % 10;
-                                int x = bytesDiff / 10;
-                                newR = actualColor.R - 1;
-                                newG = actualColor.G + x < 256 ? actualColor.G + x : actualColor.G - x;
-                                newB = actualColor.B + mod < 256 ? actualColor.B + mod : actualColor.B - mod;
-                                if (newR != actualColor.R)
-                                {
-                                    counterOfChangingOccurs++;
-                                }
-                                //R2 test
-                                else
-                                {
-                                    R2.Add(newR);
-
-                                }
-                            }
-                        }
-                        //for originalR EQUALS message byte value
-                        if (actualColor.R == tabOfBytes[coordsForPixelsChangeIndexer])
-                        {
-                            newB = actualColor.B < 255 ? actualColor.B + 1 : actualColor.B - 1;
-                            if (newB != actualColor.B)
-                            {
-                                counterOfChangingOccurs++;
-
-                            }
-                            //B11 test
-                            else
-                            {
-                                B1.Add(newB);
-
-                            }
-
-                        }
+                        byte[] valuesRGB = CalculateRGBFromMessage(actualColor.R, actualColor.G, actualColor.B, encryptedMessageInBytes[coordsForPixelsChangeIndexer]);
 
                         //setting new color on new bitmap
-                        newColor = Color.FromArgb(actualColor.A, Convert.ToByte(newR), Convert.ToByte(newG), Convert.ToByte(newB));
+                        newColor = Color.FromArgb(actualColor.A, valuesRGB[0], valuesRGB[1], valuesRGB[2]);
                         newBitmap.SetPixel(i, j, newColor);
 
                         coordsForPixelsChangeIndexer++;
                     }
-                    //Putting IV TAB
+                    //Setting Initial Vector byte array
                     else if (i == sourceBitmap.Width - 25 && j % 16 == 0 && ivIndexer < iv.Length)
                     {
-                        newColor = Color.FromArgb(actualColor.A, iv[ivIndexer], actualColor.G, actualColor.B);
+                        byte[] valuesRGB = CalculateRGBFromMessage(actualColor.R, actualColor.G, actualColor.B, iv[ivIndexer]);
+
+                        newColor = Color.FromArgb(actualColor.A, valuesRGB[0], valuesRGB[1], valuesRGB[2]);
                         newBitmap.SetPixel(i, j, newColor);
 
-                        if (actualColor.R == iv[ivIndexer])
-                        {
-                            newColor = Color.FromArgb(actualColor.A, iv[ivIndexer], actualColor.G, actualColor.B < 255 ? actualColor.B + 1 : actualColor.B - 1);
-                            newBitmap.SetPixel(i, j, newColor);
-                        }
                         ivIndexer++;
 
                     }
-                    //Putting KEY TAB
+                    //Setting Key byte array
                     else if (j == sourceBitmap.Height - 25 && i > 50 && i < 500 && i % 10 == 0 && keyIndexer < key.Length)
                     {
-                        newColor = Color.FromArgb(actualColor.A, key[keyIndexer], actualColor.G, actualColor.B);
+
+                        byte[] valuesRGB = CalculateRGBFromMessage(actualColor.R, actualColor.G, actualColor.B, key[keyIndexer]);
+
+                        newColor = Color.FromArgb(actualColor.A, valuesRGB[0], valuesRGB[1], valuesRGB[2]);
                         newBitmap.SetPixel(i, j, newColor);
 
-                        if (actualColor.R == key[keyIndexer])
-                        {
-                            newColor = Color.FromArgb(actualColor.A, key[keyIndexer], actualColor.G, actualColor.B < 255 ? actualColor.B + 1 : actualColor.B - 1);
-                            newBitmap.SetPixel(i, j, newColor);
-                        }
                         keyIndexer++;
 
                     }
@@ -847,7 +795,7 @@ namespace BasicLibrary.ViewModels
                 {
                     OriginalImage = loadedImage;
                     OriginalImageSourcePath = ofd.FileName;
-                    LengthOfMessage = MessageToHide!=null?MessageToHide.Length: LengthOfMessage;
+                    LengthOfMessage = MessageToHide != null ? MessageToHide.Length : LengthOfMessage;
                 }
 
             }

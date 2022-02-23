@@ -81,7 +81,7 @@ namespace BasicLibrary.ViewModels
 
             set
             {
-                
+
                 SetProperty(ref _imageWithHiddenMessage, value);
                 if (OriginalImage != null && ImageWithHiddenMessage != null)
                 {
@@ -150,8 +150,8 @@ namespace BasicLibrary.ViewModels
             { return _hiddenMessage; }
 
             set
-           {
-                
+            {
+
                 SetProperty(ref _hiddenMessage, value);
                 LengthOfMessage = _hiddenMessage == null ? 0 : _hiddenMessage.Length;
                 RaisePropertyChanged("LengthOfMessage");
@@ -182,7 +182,7 @@ namespace BasicLibrary.ViewModels
 
             set
             {
-                
+
                 SetProperty(ref _decryptIsEnabled, value);
 
             }
@@ -211,6 +211,45 @@ namespace BasicLibrary.ViewModels
         public void SwitchViewToEncoder()
         {
             _navigationService.Navigate<EncryptorViewModel>();
+        }
+
+        public byte CalculateByteValueFromRGBForMessage(int pixelCompareCase, int originalImgR = -1, int originalImgG = -1, int originalImgB = -1, int messageImgR = -1, int messageImgG = -1, int messageImgB = -1)
+        {
+            int diffR;
+            int diffG;
+            int diffB;
+            int diffRMultipledBy10;
+            int diffGMultipliedBy10;
+
+            int byteDiff;
+
+            switch (pixelCompareCase)
+            {
+                case 0:
+                    byteDiff = originalImgR;
+                    break;
+                case 1:
+                    diffG = Math.Abs(originalImgG - messageImgG);
+                    byteDiff = messageImgR + diffG;
+                    break;
+                case 2:
+                    diffR = messageImgR - originalImgR;
+                    diffRMultipledBy10 = diffR * 10;
+                    byteDiff = originalImgR + diffRMultipledBy10 + Math.Abs(messageImgG - originalImgG);
+                    break;
+                case 3:
+                    diffG = Math.Abs(messageImgG - originalImgG);
+                    diffB = Math.Abs(messageImgB - originalImgB);
+                    diffGMultipliedBy10 = diffG * 10;
+                    byteDiff = messageImgR - (diffGMultipliedBy10 + diffB);
+                    break;
+                default:
+                    byteDiff = 100;
+                    break;
+            }
+
+
+            return Convert.ToByte(byteDiff);
         }
 
         public byte[] GetBytesDifference(Bitmap originalImg, Bitmap imgWithMessage, ref byte[] key, ref byte[] iv)
@@ -253,77 +292,101 @@ namespace BasicLibrary.ViewModels
                         //check for eventually same R values of pixels of both imgs and B are different
                         if (originalImgActualB != imgWithMessageActualB
                            && originalImgActualR == imgWithMessageActualR
-                           && originalImgActualG == imgWithMessageActualG
-                           && i != imgWithMessage.Width - 25
-                           && j != imgWithMessage.Height - 25)
+                           && originalImgActualG == imgWithMessageActualG)
                         {
-                            bytesDifferenceMessage.Add(Convert.ToByte(imgWithMessageActualR));
-                            counterOfChangingOccurs++;
+                            if (i != imgWithMessage.Width - 25 && j != imgWithMessage.Height - 25)
+                            {
+                                bytesDifferenceMessage.Add(CalculateByteValueFromRGBForMessage(0, originalImgR: originalImgActualR));
+                                counterOfChangingOccurs++;
+                            }
+                            else if (i == imgWithMessage.Width - 25 && j < imgWithMessage.Height - 25)
+                            {
+                                bytesDifferenceIV.Add(CalculateByteValueFromRGBForMessage(0, originalImgR: originalImgActualR));
+                                counterOfChangingOccurs++;
+                            }
+                            else if (j == imgWithMessage.Height - 25)
+                            {
+                                bytesDifferenceKey.Add(CalculateByteValueFromRGBForMessage(0, originalImgR: originalImgActualR));
+                                counterOfChangingOccurs++;
+                            }
+
                         }
                         //check for eventually same R values of pixels of both imgs and G are different
                         if (originalImgActualB == imgWithMessageActualB
                            && originalImgActualR == imgWithMessageActualR
-                           && originalImgActualG != imgWithMessageActualG
-                           && i != imgWithMessage.Width - 25
-                           && j != imgWithMessage.Height - 25)
+                           && originalImgActualG != imgWithMessageActualG)
                         {
-                            int diffG = Math.Abs(originalImgActualG - imgWithMessageActualG);
-                            bytesDifferenceMessage.Add(Convert.ToByte(imgWithMessageActualR+diffG));
-                            counterOfChangingOccurs++;
+                            if (i != imgWithMessage.Width - 25 && j != imgWithMessage.Height - 25)
+                            {
+                                bytesDifferenceMessage.Add(CalculateByteValueFromRGBForMessage(1, messageImgR: imgWithMessageActualR, originalImgG: originalImgActualG, messageImgG: imgWithMessageActualG));
+                                counterOfChangingOccurs++;
+                            }
+                            else if (i == imgWithMessage.Width - 25 && j < imgWithMessage.Height - 25)
+                            {
+                                bytesDifferenceIV.Add(CalculateByteValueFromRGBForMessage(1, messageImgR: imgWithMessageActualR, originalImgG: originalImgActualG, messageImgG: imgWithMessageActualG));
+                                counterOfChangingOccurs++;
+                            }
+                            else if (j == imgWithMessage.Height - 25)
+                            {
+                                bytesDifferenceKey.Add(CalculateByteValueFromRGBForMessage(1, messageImgR: imgWithMessageActualR, originalImgG: originalImgActualG, messageImgG: imgWithMessageActualG));
+                                counterOfChangingOccurs++;
+                            }
+
                         }
                         //message values
-                        if (originalImgActualR != imgWithMessageActualR
-                            && i != imgWithMessage.Width - 25 && j != imgWithMessage.Height - 25)
+                        if (originalImgActualR != imgWithMessageActualR)
                         {
                             //calculate correct bytes values if original R is higher
                             if (originalImgActualR < imgWithMessageActualR)
                             {
-                                int diffR = imgWithMessageActualR - originalImgActualR;
-                                int diffRMultipledBy10 = diffR * 10;
-                                int r = originalImgActualR + diffRMultipledBy10 + Math.Abs(imgWithMessageActualG - originalImgActualG);
 
-                                if (r > 255 || r < 0)
+                                if (i != imgWithMessage.Width - 25 && j != imgWithMessage.Height - 25)
                                 {
-                                    return null;
+                                    bytesDifferenceMessage.Add(CalculateByteValueFromRGBForMessage(2, originalImgR: originalImgActualR, messageImgR: imgWithMessageActualR, originalImgG: originalImgActualG,
+                                    messageImgG: imgWithMessageActualG));
+                                    counterOfChangingOccurs++;
                                 }
-                                bytesDifferenceMessage.Add(Convert.ToByte(r));
-                                counterOfChangingOccurs++;
+                                else if (i == imgWithMessage.Width - 25 && j < imgWithMessage.Height - 25)
+                                {
+                                    bytesDifferenceIV.Add(CalculateByteValueFromRGBForMessage(2, originalImgR: originalImgActualR, messageImgR: imgWithMessageActualR, originalImgG: originalImgActualG,
+                                    messageImgG: imgWithMessageActualG));
+                                    counterOfChangingOccurs++;
+                                }
+                                else if (j == imgWithMessage.Height - 25)
+                                {
+                                    bytesDifferenceKey.Add(CalculateByteValueFromRGBForMessage(2, originalImgR: originalImgActualR, messageImgR: imgWithMessageActualR, originalImgG: originalImgActualG,
+                                    messageImgG: imgWithMessageActualG));
+                                    counterOfChangingOccurs++;
+                                }
+
 
                             }
                             //calculate correct bytes values if image with message R is higher
                             if (originalImgActualR > imgWithMessageActualR)
                             {
-                                int diffG = Math.Abs(imgWithMessageActualG - originalImgActualG);
-                                int diffB = Math.Abs(imgWithMessageActualB - originalImgActualB);
-                                int diffGMultipliedBy10 = diffG * 10;
-                                int r = imgWithMessageActualR - (diffGMultipliedBy10 + diffB);
-
-                                if (r > 255 || r < 0)
+                                if (i != imgWithMessage.Width - 25 && j != imgWithMessage.Height - 25)
                                 {
-                                    return null;
+                                    bytesDifferenceMessage.Add(CalculateByteValueFromRGBForMessage(3, messageImgR: imgWithMessageActualR, originalImgG: originalImgActualG, messageImgG: imgWithMessageActualG,
+                                    originalImgB: originalImgActualB, messageImgB: imgWithMessageActualB));
+                                    counterOfChangingOccurs++;
                                 }
-                                bytesDifferenceMessage.Add(Convert.ToByte(r));
-                                counterOfChangingOccurs++;
+                                else if (i == imgWithMessage.Width - 25 && j < imgWithMessage.Height - 25)
+                                {
+                                    bytesDifferenceIV.Add(CalculateByteValueFromRGBForMessage(3, messageImgR: imgWithMessageActualR, originalImgG: originalImgActualG, messageImgG: imgWithMessageActualG,
+                                    originalImgB: originalImgActualB, messageImgB: imgWithMessageActualB));
+                                    counterOfChangingOccurs++;
+                                }
+                                else if (j == imgWithMessage.Height - 25)
+                                {
+                                    bytesDifferenceKey.Add(CalculateByteValueFromRGBForMessage(3, messageImgR: imgWithMessageActualR, originalImgG: originalImgActualG, messageImgG: imgWithMessageActualG,
+                                    originalImgB: originalImgActualB, messageImgB: imgWithMessageActualB));
+                                    counterOfChangingOccurs++;
+                                }
 
                             }
 
                         }
-                        //IV values
-                        else if ((originalImgActualR != imgWithMessageActualR
-                            || originalImgActualB != imgWithMessageActualB)
-                            && i == imgWithMessage.Width - 25 && j < imgWithMessage.Height - 25)
-                        {
-                            bytesDifferenceIV.Add(Convert.ToByte(imgWithMessageActualR));
 
-                        }
-                        //Key values
-                        else if ((originalImgActualR != imgWithMessageActualR
-                            || originalImgActualB != imgWithMessageActualB)
-                            && j == imgWithMessage.Height - 25)
-                        {
-                            bytesDifferenceKey.Add(Convert.ToByte(imgWithMessageActualR));
-
-                        }
                     }
                 }
             }
