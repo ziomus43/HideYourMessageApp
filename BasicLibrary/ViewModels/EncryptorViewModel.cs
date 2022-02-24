@@ -14,6 +14,7 @@ using System.Windows.Media.Imaging;
 using BasicLibrary.Converters;
 using MvvmCross.Converters;
 using System.Windows;
+using System.Diagnostics;
 
 namespace BasicLibrary.ViewModels
 {
@@ -694,6 +695,18 @@ namespace BasicLibrary.ViewModels
 
         public void EncryptMessage()
         {
+
+            int imgWidth = OriginalImage.Width;
+            int imgHeight = OriginalImage.Height;
+
+            int msgLen = MessageToHide.Length;
+
+            Stopwatch sw = new Stopwatch();
+
+            sw.Start();
+            string encryptionStart = $"{DateTime.Now}: Encryption started";
+
+
             byte[] encryptedMessage = null;
             if (!String.IsNullOrEmpty(MessageToHide))
             {
@@ -702,6 +715,23 @@ namespace BasicLibrary.ViewModels
 
 
             ChangePixelColor(encryptedMessage, Aes.Key, Aes.IV);
+
+            string encryptionEnd = $"{DateTime.Now}: Encryption finished";
+
+            sw.Stop();
+
+            Console.WriteLine("Elapsed={0}", sw.Elapsed);
+
+            // Create a string with a line of text.
+            string res = $"{DateTime.Now}: Image resolution {imgWidth} X {imgHeight} px";
+            string messageLen = $"{DateTime.Now}: Message length {msgLen} chars";
+            string execTime = $"{DateTime.Now}: Encryption elapsed time {sw.Elapsed}";
+            string sep = "--------------------------------------------";
+            // Set a variable to the Documents path.
+            string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+
+            // Append new lines of text to the file
+            File.AppendAllLines(Path.Combine(docPath, $"Encryption_time_measurements.txt"), new string[] {res, messageLen, encryptionStart, encryptionEnd, execTime, sep});
         }
 
 
