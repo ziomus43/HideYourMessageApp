@@ -731,7 +731,7 @@ namespace BasicLibrary.ViewModels
             string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
             // Append new lines of text to the file
-            File.AppendAllLines(Path.Combine(docPath, $"Encryption_time_measurements.txt"), new string[] {res, messageLen, encryptionStart, encryptionEnd, execTime, sep});
+            File.AppendAllLines(Path.Combine(docPath, $"ENCRYPTION_time_measurements.txt"), new string[] { Environment.NewLine, res, messageLen, encryptionStart, encryptionEnd, execTime, sep});
         }
 
 

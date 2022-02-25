@@ -5,6 +5,7 @@ using MvvmCross.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Security.Cryptography;
@@ -403,6 +404,18 @@ namespace BasicLibrary.ViewModels
 
         public void DecryptMessageToString(byte[] Key, byte[] IV)
         {
+
+            int imgWidth = OriginalImage.Width;
+            int imgHeight = OriginalImage.Height;
+
+            
+
+            Stopwatch sw = new Stopwatch();
+
+            sw.Start();
+            string encryptionStart = $"{DateTime.Now}: Encryption started";
+
+
             MessageInBytes = GetBytesDifference(OriginalImage, ImageWithHiddenMessage, ref Key, ref IV);
             // Check arguments.
             if (MessageInBytes == null || MessageInBytes.Length <= 0)
@@ -464,6 +477,26 @@ namespace BasicLibrary.ViewModels
                 HiddenMessage = String.Empty;
             }
             HiddenMessage = plaintext;
+
+            int msgLen = HiddenMessage.Length;
+
+            string encryptionEnd = $"{DateTime.Now}: Encryption finished";
+
+            sw.Stop();
+
+            Console.WriteLine("Elapsed={0}", sw.Elapsed);
+
+            // Create a string with a line of text.
+            string res = $"{DateTime.Now}: Image resolution {imgWidth} X {imgHeight} px";
+            string messageLen = $"{DateTime.Now}: Message length {msgLen} chars";
+            string execTime = $"{DateTime.Now}: Encryption elapsed time {sw.Elapsed}";
+            string sep = "--------------------------------------------";
+            // Set a variable to the Documents path.
+            string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+
+            // Append new lines of text to the file
+            File.AppendAllLines(Path.Combine(docPath, $"DECRYPTION_time_measurements.txt"), new string[] {Environment.NewLine, res, messageLen, encryptionStart, encryptionEnd, execTime, sep });
+
         }
 
         #region Loading and Saving
