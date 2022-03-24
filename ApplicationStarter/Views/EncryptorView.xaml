@@ -66,12 +66,12 @@
                     <RowDefinition Height="auto"/>
                 </Grid.RowDefinitions>
                 <TextBlock Grid.Row="0" Grid.Column="0" Text="HOW TO:" FontSize="20"  Height="25" TextWrapping="Wrap" Margin="0,30,0,0"/>
-                <TextBlock Grid.Row="1" Grid.Column="0" Text="1. Load or write down message" Height="45" TextWrapping="Wrap" Margin="0,30,0,0"/>
-                <TextBlock Grid.Row="2" Grid.Column="0" Text="2. Load image to hide message in" Height="45" TextWrapping="Wrap" Margin="0,10,0,0"/>
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="1. Load image to hide message inside" Height="45" TextWrapping="Wrap" Margin="0,30,0,0"/>
+                <TextBlock Grid.Row="2" Grid.Column="0" Text="2. Load or write down message to hide" Height="45" TextWrapping="Wrap" Margin="0,10,0,0"/>
                 <TextBlock Grid.Row="3" Grid.Column="0" Text="3. Press Encrypt Message button to generate image with hidden message" Height="85" TextWrapping="Wrap" Margin="0,10,0,0"/>
 
             </Grid>
-            <TextBox Text="{Binding MessageToHide, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MaxLength="{Binding MaxCharactersForMessage}"
+            <TextBox Text="{Binding MessageToHide, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MaxLength="{Binding MaxCharactersForMessage}" IsEnabled="{Binding EnableEnteringMessage}"
                      TextWrapping="Wrap" Margin="5" Grid.Row="5" Grid.Column="2" MinHeight="150" Grid.ColumnSpan="3" MaxWidth="1100"></TextBox>
 
             <StackPanel Orientation="Horizontal" Grid.Row="4" Grid.Column="2" Grid.ColumnSpan="2" FlowDirection="LeftToRight" Height="50">
@@ -98,7 +98,7 @@
                 IsEnabled="{Binding SaveMessageIsEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></Button>
 
             </StackPanel>
-            <StackPanel Orientation="Horizontal" Grid.Row="6" Grid.Column="5" FlowDirection="LeftToRight" Height="50">
+            <StackPanel Orientation="Vertical" Grid.Row="6" Grid.Column="5" FlowDirection="LeftToRight" Height="50">
                 <TextBlock Text="Characters left: " FontSize="18" TextBlock.FontWeight="Bold"></TextBlock>
                 <TextBlock Text="{Binding NumOfCharactersLeftInMessage, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource IntToStringValueConverter}}" FontSize="18" TextBlock.Foreground="Red" TextBlock.FontWeight="Bold"></TextBlock>
             </StackPanel>

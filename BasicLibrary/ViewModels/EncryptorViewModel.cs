@@ -66,7 +66,7 @@ namespace BasicLibrary.ViewModels
             set
             {
                 SetProperty(ref _messageToHide, value);
-                NumOfCharactersLeftInMessage = MessageToHide == null ? 600 : 600 - value.Length;
+                NumOfCharactersLeftInMessage = MaxCharactersForMessage != null && Convert.ToInt32(MaxCharactersForMessage) > 0 ? Convert.ToInt32(MaxCharactersForMessage) - (value != null ? value.Length : 0) : NumOfCharactersLeftInMessage;
                 RaisePropertyChanged("NumOfCharactersLeftInMessage");
 
                 LengthOfMessage = MessageToHide == null ? 0 : MessageToHide.Length;
@@ -90,6 +90,20 @@ namespace BasicLibrary.ViewModels
             }
         }
 
+        private int _messageLenKeeper;
+
+        public int MessageLenKeeper
+        {
+            get
+            { return _messageLenKeeper; }
+
+            set
+            {
+                SetProperty(ref _messageLenKeeper, value);
+                RaisePropertyChanged(() => MessageLenKeeper);
+            }
+        }
+
         private bool _messageIsEnabled = false;
 
         public bool MessageIsEnabled
@@ -101,6 +115,20 @@ namespace BasicLibrary.ViewModels
             {
                 SetProperty(ref _messageIsEnabled, value);
                 RaisePropertyChanged(() => MessageIsEnabled);
+            }
+        }
+
+        private bool _enableEnteringMessage = false;
+
+        public bool EnableEnteringMessage
+        {
+            get
+            { return _enableEnteringMessage; }
+
+            set
+            {
+                SetProperty(ref _enableEnteringMessage, value);
+                RaisePropertyChanged(() => EnableEnteringMessage);
             }
         }
 
@@ -132,7 +160,7 @@ namespace BasicLibrary.ViewModels
             }
         }
 
-        private int _numOfCharactersLeftInMessage = 600;
+        private int _numOfCharactersLeftInMessage;
 
         public int NumOfCharactersLeftInMessage
         {
@@ -149,7 +177,7 @@ namespace BasicLibrary.ViewModels
             }
         }
 
-        private string _maxCharactersForMessage = "600";
+        private string _maxCharactersForMessage;
 
         public string MaxCharactersForMessage
         {
@@ -457,6 +485,7 @@ namespace BasicLibrary.ViewModels
                 throw new ArgumentNullException("IV");
             byte[] encrypted;
 
+            MessageLenKeeper = messageToEncrypt.Length;
             // Create an AesCryptoServiceProvider object
             // with the specified key and IV.
             using (AesCryptoServiceProvider aesAlg = new AesCryptoServiceProvider())
@@ -480,7 +509,7 @@ namespace BasicLibrary.ViewModels
                     }
                 }
             }
-            int counter = 0;
+            /*int counter = 0;
             List<byte> catched = new List<byte>();
             foreach (byte b in encrypted)
             {
@@ -492,7 +521,7 @@ namespace BasicLibrary.ViewModels
                         catched.Add(b);
                     }
                 }
-            }
+            }*/
             return encrypted;
         }
 
@@ -544,7 +573,7 @@ namespace BasicLibrary.ViewModels
                 newG = valueG + mod < 256 ? valueG + mod : valueG - mod;
                 newB = valueB;
             }
-            else if(encryptedMessageByte < valueR)
+            else if (encryptedMessageByte < valueR)
             {
                 int bytesDiff = valueR - encryptedMessageByte - 1;
                 int mod = bytesDiff % 10;
@@ -574,59 +603,23 @@ namespace BasicLibrary.ViewModels
             int keyIndexer = 0;
             int ivIndexer = 0;
 
-            //splitting img height for 2 parts
-            int firstPartTopBorder = 0;
-            int firstPartBottomBorder = sourceBitmap.Height / 2 - 50;
-
-            int secondPartTopBorder = sourceBitmap.Height / 2 - 48;
-            int secondPartBottomBorder = sourceBitmap.Height - 48;
-
-            int separatorsCount = (sourceBitmap.Width - 50) / encryptedMessageInBytes.Length;
-            int leftLimitValue = 0;
-            int rightLimitValue = separatorsCount;
-
-            //to set 2 pixels for same i value
-            int even = 0;
             Color newColor;
             Color actualColor;
             Bitmap newBitmap = new Bitmap(sourceBitmap.Width, sourceBitmap.Height);
 
 
+            int bottomSpot = sourceBitmap.Height - 4;
+            int rightSpot = sourceBitmap.Width - 4;
+            int pixelCountInArea = bottomSpot * rightSpot;
+            int availablePixelsCount = pixelCountInArea % 2 == 0 ? pixelCountInArea / 2 : pixelCountInArea / 2 + 1;
 
-            //setting coords for pixel changing
-            List<Tuple<int, int>> coordsForPixelsChange = new List<Tuple<int, int>>();
-            for (int i = 0; i < encryptedMessageInBytes.Length / 2; i++)
+            int msgLen = encryptedMessageInBytes.Length;
+            MaxCharactersForMessage = availablePixelsCount.ToString();
+            if (sourceBitmap.Width < 70 || sourceBitmap.Height < 36)
             {
-
-                coordsForPixelsChange.Add(new Tuple<int, int>(new Random().Next(leftLimitValue, rightLimitValue), new Random().Next(firstPartTopBorder, firstPartBottomBorder)));
-                coordsForPixelsChange.Add(new Tuple<int, int>(coordsForPixelsChange[even].Item1, new Random().Next(secondPartTopBorder, secondPartBottomBorder)));
-
-                leftLimitValue += separatorsCount + 1;
-                rightLimitValue += separatorsCount + 1;
-                even += 2;
-            }
-
-
-            if ((sourceBitmap.Width < 800 || sourceBitmap.Height < 500) && LengthOfMessage > 400)
-            {
-                MessageBox.Show("Image's resolution is too small.\nLarger image is needed for " + LengthOfMessage + " characters", "Invalid size", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.Yes);
+                MessageBox.Show("Image's resolution has to be 70 x 36 at least", "Invalid size", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.Yes);
                 return null;
             }
-            else if ((sourceBitmap.Width < 1100 || sourceBitmap.Height < 500)
-                && (LengthOfMessage >= 400 && LengthOfMessage < 500))
-            {
-                MessageBox.Show("Image's resolution is too small.\nLarger image is needed for " + LengthOfMessage + " characters", "Invalid size", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.Yes);
-                return null;
-
-            }
-            else if ((sourceBitmap.Width < 1400 || sourceBitmap.Height < 500)
-                && (LengthOfMessage >= 500 && LengthOfMessage < 600))
-            {
-                MessageBox.Show("Image's resolution is too small.\nLarger image is needed for " + LengthOfMessage + " characters", "Invalid size", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.Yes);
-                return null;
-
-            }
-
 
             //Walking through Image's pixels loop
             for (int i = 0; i < sourceBitmap.Width; i++)
@@ -636,9 +629,7 @@ namespace BasicLibrary.ViewModels
                     //color of specific pixel image
                     actualColor = sourceBitmap.GetPixel(i, j);
 
-                    if (coordsForPixelsChangeIndexer < coordsForPixelsChange.Count
-                        && i == coordsForPixelsChange[coordsForPixelsChangeIndexer].Item1
-                        && j == coordsForPixelsChange[coordsForPixelsChangeIndexer].Item2)
+                    if (i < rightSpot && j < bottomSpot && msgLen > coordsForPixelsChangeIndexer && i % 2 == 0 && j % 2 == 0)
                     {
 
                         byte[] valuesRGB = CalculateRGBFromMessage(actualColor.R, actualColor.G, actualColor.B, encryptedMessageInBytes[coordsForPixelsChangeIndexer]);
@@ -648,9 +639,22 @@ namespace BasicLibrary.ViewModels
                         newBitmap.SetPixel(i, j, newColor);
 
                         coordsForPixelsChangeIndexer++;
+
+                    }
+                    else if (i < rightSpot && j < bottomSpot && msgLen > coordsForPixelsChangeIndexer && i % 2 == 1 && j % 2 == 1)
+                    {
+
+                        byte[] valuesRGB = CalculateRGBFromMessage(actualColor.R, actualColor.G, actualColor.B, encryptedMessageInBytes[coordsForPixelsChangeIndexer]);
+
+                        //setting new color on new bitmap
+                        newColor = Color.FromArgb(actualColor.A, valuesRGB[0], valuesRGB[1], valuesRGB[2]);
+                        newBitmap.SetPixel(i, j, newColor);
+
+                        coordsForPixelsChangeIndexer++;
+
                     }
                     //Setting Initial Vector byte array
-                    else if (i == sourceBitmap.Width - 25 && j % 16 == 0 && ivIndexer < iv.Length)
+                    else if (i == sourceBitmap.Width - 2 && j % 2 == 0 && ivIndexer < iv.Length)
                     {
                         byte[] valuesRGB = CalculateRGBFromMessage(actualColor.R, actualColor.G, actualColor.B, iv[ivIndexer]);
 
@@ -661,7 +665,7 @@ namespace BasicLibrary.ViewModels
 
                     }
                     //Setting Key byte array
-                    else if (j == sourceBitmap.Height - 25 && i > 50 && i < 500 && i % 10 == 0 && keyIndexer < key.Length)
+                    else if (j == sourceBitmap.Height - 2 && i % 2 == 0 && keyIndexer < key.Length)
                     {
 
                         byte[] valuesRGB = CalculateRGBFromMessage(actualColor.R, actualColor.G, actualColor.B, key[keyIndexer]);
@@ -698,8 +702,9 @@ namespace BasicLibrary.ViewModels
 
             int imgWidth = OriginalImage.Width;
             int imgHeight = OriginalImage.Height;
+            int imgPixCount = imgWidth * imgHeight;
 
-            int msgLen = MessageToHide.Length;
+
 
             Stopwatch sw = new Stopwatch();
 
@@ -716,6 +721,10 @@ namespace BasicLibrary.ViewModels
 
             ChangePixelColor(encryptedMessage, Aes.Key, Aes.IV);
 
+            int msgLen = MessageLenKeeper;
+            float availablePixelsCountInPerc = (float)Convert.ToInt32(MaxCharactersForMessage) / (float)imgPixCount;
+            float pixelsCountOccupiedByMessageInPerc = (float)Convert.ToInt32(msgLen) / (float)imgPixCount;
+
             string encryptionEnd = $"{DateTime.Now}: Encryption finished";
 
             sw.Stop();
@@ -723,15 +732,17 @@ namespace BasicLibrary.ViewModels
             Console.WriteLine("Elapsed={0}", sw.Elapsed);
 
             // Create a string with a line of text.
-            string res = $"{DateTime.Now}: Image resolution {imgWidth} X {imgHeight} px";
-            string messageLen = $"{DateTime.Now}: Message length {msgLen} chars";
-            string execTime = $"{DateTime.Now}: Encryption elapsed time {sw.Elapsed}";
+            string resLog = $"{DateTime.Now}: Image resolution {imgWidth} X {imgHeight} px";
+            string messageLenLog = $"{DateTime.Now}: Message length {msgLen} chars";
+            string availablePixelsCountInPercLog = $"{DateTime.Now}: Max {availablePixelsCountInPerc * 100}% of image pixels available te by occupied by message bytes";
+            string pixelsCountOccupiedByMessageInPercLog = $"{DateTime.Now}: {pixelsCountOccupiedByMessageInPerc * 100}% of image pixels occupied for message";
+            string execTimeLog = $"{DateTime.Now}: Encryption elapsed time {sw.Elapsed}";
             string sep = "--------------------------------------------";
             // Set a variable to the Documents path.
             string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
             // Append new lines of text to the file
-            File.AppendAllLines(Path.Combine(docPath, $"ENCRYPTION_time_measurements.txt"), new string[] { Environment.NewLine, res, messageLen, encryptionStart, encryptionEnd, execTime, sep});
+            File.AppendAllLines(Path.Combine(docPath, $"ENCRYPTION_time_measurements.txt"), new string[] { Environment.NewLine, resLog, messageLenLog, availablePixelsCountInPercLog, pixelsCountOccupiedByMessageInPercLog, encryptionStart, encryptionEnd, execTimeLog, sep });
         }
 
 
@@ -826,6 +837,14 @@ namespace BasicLibrary.ViewModels
                     OriginalImage = loadedImage;
                     OriginalImageSourcePath = ofd.FileName;
                     LengthOfMessage = MessageToHide != null ? MessageToHide.Length : LengthOfMessage;
+
+                    int bottomSpot = loadedImage.Height - 4;
+                    int rightSpot = loadedImage.Width - 4;
+                    int pixelCountInArea = bottomSpot * rightSpot;
+                    int availablePixelsCount = (pixelCountInArea % 2 == 0 ? pixelCountInArea / 2 : pixelCountInArea / 2 + 1) - 30;
+                    MaxCharactersForMessage = availablePixelsCount.ToString();
+                    NumOfCharactersLeftInMessage = Convert.ToInt32(MaxCharactersForMessage);
+                    EnableEnteringMessage = true;
                 }
 
             }

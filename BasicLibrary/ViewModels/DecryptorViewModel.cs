@@ -295,17 +295,17 @@ namespace BasicLibrary.ViewModels
                            && originalImgActualR == imgWithMessageActualR
                            && originalImgActualG == imgWithMessageActualG)
                         {
-                            if (i != imgWithMessage.Width - 25 && j != imgWithMessage.Height - 25)
+                            if (i != imgWithMessage.Width - 2 && j != imgWithMessage.Height - 2)
                             {
                                 bytesDifferenceMessage.Add(CalculateByteValueFromRGBForMessage(0, originalImgR: originalImgActualR));
                                 counterOfChangingOccurs++;
                             }
-                            else if (i == imgWithMessage.Width - 25 && j < imgWithMessage.Height - 25)
+                            else if (i == imgWithMessage.Width - 2 && j < imgWithMessage.Height - 2)
                             {
                                 bytesDifferenceIV.Add(CalculateByteValueFromRGBForMessage(0, originalImgR: originalImgActualR));
                                 counterOfChangingOccurs++;
                             }
-                            else if (j == imgWithMessage.Height - 25)
+                            else if (j == imgWithMessage.Height - 2)
                             {
                                 bytesDifferenceKey.Add(CalculateByteValueFromRGBForMessage(0, originalImgR: originalImgActualR));
                                 counterOfChangingOccurs++;
@@ -317,17 +317,17 @@ namespace BasicLibrary.ViewModels
                            && originalImgActualR == imgWithMessageActualR
                            && originalImgActualG != imgWithMessageActualG)
                         {
-                            if (i != imgWithMessage.Width - 25 && j != imgWithMessage.Height - 25)
+                            if (i != imgWithMessage.Width - 2 && j != imgWithMessage.Height - 2)
                             {
                                 bytesDifferenceMessage.Add(CalculateByteValueFromRGBForMessage(1, messageImgR: imgWithMessageActualR, originalImgG: originalImgActualG, messageImgG: imgWithMessageActualG));
                                 counterOfChangingOccurs++;
                             }
-                            else if (i == imgWithMessage.Width - 25 && j < imgWithMessage.Height - 25)
+                            else if (i == imgWithMessage.Width - 2 && j < imgWithMessage.Height - 2)
                             {
                                 bytesDifferenceIV.Add(CalculateByteValueFromRGBForMessage(1, messageImgR: imgWithMessageActualR, originalImgG: originalImgActualG, messageImgG: imgWithMessageActualG));
                                 counterOfChangingOccurs++;
                             }
-                            else if (j == imgWithMessage.Height - 25)
+                            else if (j == imgWithMessage.Height - 2)
                             {
                                 bytesDifferenceKey.Add(CalculateByteValueFromRGBForMessage(1, messageImgR: imgWithMessageActualR, originalImgG: originalImgActualG, messageImgG: imgWithMessageActualG));
                                 counterOfChangingOccurs++;
@@ -341,19 +341,19 @@ namespace BasicLibrary.ViewModels
                             if (originalImgActualR < imgWithMessageActualR)
                             {
 
-                                if (i != imgWithMessage.Width - 25 && j != imgWithMessage.Height - 25)
+                                if (i != imgWithMessage.Width - 2 && j != imgWithMessage.Height - 2)
                                 {
                                     bytesDifferenceMessage.Add(CalculateByteValueFromRGBForMessage(2, originalImgR: originalImgActualR, messageImgR: imgWithMessageActualR, originalImgG: originalImgActualG,
                                     messageImgG: imgWithMessageActualG));
                                     counterOfChangingOccurs++;
                                 }
-                                else if (i == imgWithMessage.Width - 25 && j < imgWithMessage.Height - 25)
+                                else if (i == imgWithMessage.Width - 2 && j < imgWithMessage.Height - 2)
                                 {
                                     bytesDifferenceIV.Add(CalculateByteValueFromRGBForMessage(2, originalImgR: originalImgActualR, messageImgR: imgWithMessageActualR, originalImgG: originalImgActualG,
                                     messageImgG: imgWithMessageActualG));
                                     counterOfChangingOccurs++;
                                 }
-                                else if (j == imgWithMessage.Height - 25)
+                                else if (j == imgWithMessage.Height - 2)
                                 {
                                     bytesDifferenceKey.Add(CalculateByteValueFromRGBForMessage(2, originalImgR: originalImgActualR, messageImgR: imgWithMessageActualR, originalImgG: originalImgActualG,
                                     messageImgG: imgWithMessageActualG));
@@ -365,19 +365,19 @@ namespace BasicLibrary.ViewModels
                             //calculate correct bytes values if image with message R is higher
                             if (originalImgActualR > imgWithMessageActualR)
                             {
-                                if (i != imgWithMessage.Width - 25 && j != imgWithMessage.Height - 25)
+                                if (i != imgWithMessage.Width - 2 && j != imgWithMessage.Height - 2)
                                 {
                                     bytesDifferenceMessage.Add(CalculateByteValueFromRGBForMessage(3, messageImgR: imgWithMessageActualR, originalImgG: originalImgActualG, messageImgG: imgWithMessageActualG,
                                     originalImgB: originalImgActualB, messageImgB: imgWithMessageActualB));
                                     counterOfChangingOccurs++;
                                 }
-                                else if (i == imgWithMessage.Width - 25 && j < imgWithMessage.Height - 25)
+                                else if (i == imgWithMessage.Width - 2 && j < imgWithMessage.Height - 2)
                                 {
                                     bytesDifferenceIV.Add(CalculateByteValueFromRGBForMessage(3, messageImgR: imgWithMessageActualR, originalImgG: originalImgActualG, messageImgG: imgWithMessageActualG,
                                     originalImgB: originalImgActualB, messageImgB: imgWithMessageActualB));
                                     counterOfChangingOccurs++;
                                 }
-                                else if (j == imgWithMessage.Height - 25)
+                                else if (j == imgWithMessage.Height - 2)
                                 {
                                     bytesDifferenceKey.Add(CalculateByteValueFromRGBForMessage(3, messageImgR: imgWithMessageActualR, originalImgG: originalImgActualG, messageImgG: imgWithMessageActualG,
                                     originalImgB: originalImgActualB, messageImgB: imgWithMessageActualB));
@@ -413,7 +413,7 @@ namespace BasicLibrary.ViewModels
             Stopwatch sw = new Stopwatch();
 
             sw.Start();
-            string encryptionStart = $"{DateTime.Now}: Encryption started";
+            string encryptionStart = $"{DateTime.Now}: Decryption started";
 
 
             MessageInBytes = GetBytesDifference(OriginalImage, ImageWithHiddenMessage, ref Key, ref IV);
@@ -480,7 +480,7 @@ namespace BasicLibrary.ViewModels
 
             int msgLen = HiddenMessage.Length;
 
-            string encryptionEnd = $"{DateTime.Now}: Encryption finished";
+            string encryptionEnd = $"{DateTime.Now}: Decryption finished";
 
             sw.Stop();
 
@@ -489,7 +489,7 @@ namespace BasicLibrary.ViewModels
             // Create a string with a line of text.
             string res = $"{DateTime.Now}: Image resolution {imgWidth} X {imgHeight} px";
             string messageLen = $"{DateTime.Now}: Message length {msgLen} chars";
-            string execTime = $"{DateTime.Now}: Encryption elapsed time {sw.Elapsed}";
+            string execTime = $"{DateTime.Now}: Decryption elapsed time {sw.Elapsed}";
             string sep = "--------------------------------------------";
             // Set a variable to the Documents path.
             string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
