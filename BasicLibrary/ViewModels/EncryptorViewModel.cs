@@ -615,11 +615,6 @@ namespace BasicLibrary.ViewModels
 
             int msgLen = encryptedMessageInBytes.Length;
             MaxCharactersForMessage = availablePixelsCount.ToString();
-            if (sourceBitmap.Width < 70 || sourceBitmap.Height < 36)
-            {
-                MessageBox.Show("Image's resolution has to be 70 x 36 at least", "Invalid size", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.Yes);
-                return null;
-            }
 
             //Walking through Image's pixels loop
             for (int i = 0; i < sourceBitmap.Width; i++)
@@ -828,7 +823,7 @@ namespace BasicLibrary.ViewModels
                 //getting image's link for source
                 Bitmap loadedImage = new Bitmap(Image.FromFile(ofd.FileName));
 
-                if (loadedImage.Width < 900 || loadedImage.Height < 500)
+                if (loadedImage.Width < 70 || loadedImage.Height < 36)
                 {
                     MessageBox.Show("Image's resolution is too small.", "Invalid size", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.Yes);
                 }

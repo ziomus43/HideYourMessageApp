@@ -92,7 +92,7 @@
                 ></Button>
                 <Button mvx:Bi.nd="Command SaveImageCommand" Content="Save Image" MinWidth="150" MaxWidth="250" Margin="0,0,10,0" FontSize="20" Padding="8"
                 IsEnabled="{Binding SaveImageIsEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></Button>
-                <Button mvx:Bi.nd="Command LoadMessageCommand"  Content="Load Message" MinWidth="150" MaxWidth="250"  Margin="30,0,10,0" FontSize="20" Padding="8"
+                <Button mvx:Bi.nd="Command LoadMessageCommand"  Content="Load Message" MinWidth="150" MaxWidth="250"  Margin="30,0,10,0" FontSize="20" Padding="8" IsEnabled="{Binding EnableEnteringMessage}"
                 ></Button>
                 <Button mvx:Bi.nd="Command SaveMessageCommand" Content="Save Message" MinWidth="150" MaxWidth="250"  Margin="0,0,10,0" FontSize="20" Padding="8"
                 IsEnabled="{Binding SaveMessageIsEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></Button>
